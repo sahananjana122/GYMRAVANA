@@ -29,7 +29,7 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $this->assertTrue(auth()->user()->hasRole('member'));
-        $response->assertRedirect(route('verification.notice', absolute: false));
+        $response->assertRedirect(route('dashboard', absolute: false));
     }
 
     public function test_public_registration_cannot_assign_a_privileged_role(): void

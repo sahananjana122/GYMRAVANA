@@ -44,6 +44,23 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_unverified_member_can_log_in_and_reach_the_dashboard(): void
+    {
+        $this->seed();
+        $user = User::factory()->unverified()->create();
+        $user->assignRole('member');
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('dashboard', absolute: false));
+
+        $this->get('/dashboard')
+            ->assertRedirect(route('member.dashboard', absolute: false));
+
+        $this->get('/member/dashboard')->assertOk();
+    }
+
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();

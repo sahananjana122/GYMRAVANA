@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// Email verification is available but optional during the assignment phase.
+// Role middleware still protects every dashboard and management action.
+Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'redirect'])->name('dashboard');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {

@@ -33,13 +33,12 @@ class RoleAccessTest extends TestCase
         $this->actingAs($member)->get('/admin/dashboard')->assertForbidden();
     }
 
-    public function test_unverified_member_cannot_access_dashboard(): void
+    public function test_unverified_member_can_access_dashboard(): void
     {
         $member = User::factory()->unverified()->create();
         $member->assignRole('member');
 
-        $this->actingAs($member)->get('/member/dashboard')
-            ->assertRedirect(route('verification.notice', absolute: false));
+        $this->actingAs($member)->get('/member/dashboard')->assertOk();
     }
 
     public function test_admin_can_change_another_users_role(): void
