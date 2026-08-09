@@ -24,7 +24,6 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'role'     => ['required', 'in:member,trainer'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -34,16 +33,14 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole($request->role);
+        // Public registration always creates a member. Privileged roles are
+        // assigned by an administrator after the person's identity is checked.
+        $user->assignRole('member');
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        if ($request->role === 'trainer') {
-            return redirect()->route('trainer.dashboard');
-        }
-
-        return redirect()->route('member.dashboard');
+        return redirect()->route('verification.notice');
     }
 }

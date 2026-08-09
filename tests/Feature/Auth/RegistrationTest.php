@@ -18,6 +18,8 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        $this->seed();
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -26,6 +28,23 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertTrue(auth()->user()->hasRole('member'));
+        $response->assertRedirect(route('verification.notice', absolute: false));
+    }
+
+    public function test_public_registration_cannot_assign_a_privileged_role(): void
+    {
+        $this->seed();
+
+        $this->post('/register', [
+            'name' => 'Untrusted User',
+            'email' => 'untrusted@example.com',
+            'role' => 'trainer',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertTrue(auth()->user()->hasRole('member'));
+        $this->assertFalse(auth()->user()->hasRole('trainer'));
     }
 }
