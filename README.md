@@ -1,58 +1,112 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# GymRaavana Lifestyle System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+GymRaavana is an undergraduate software engineering project built with Laravel. It demonstrates authentication, optional email verification, role-based access control, database-backed wellness modules, validation, responsive Blade interfaces, and automated feature tests.
 
-## About Laravel
+## Implemented roles
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Member** — records workouts and measurements, completes wellness activities, earns points, and submits therapy requests.
+- **Trainer** — views operational statistics and reviews therapy requests.
+- **Master** — sees members who reach the configured points threshold.
+- **Admin** — manages user roles and therapy requests.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Public registration creates members only. Privileged roles must be assigned by an administrator.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Implemented MVP modules
 
-## Learning Laravel
+- Role-aware dashboards
+- Workout plans and daily completion tracking
+- Body measurement history
+- Meditation, breathing, and lifestyle activity tracking
+- Points and level calculation
+- Non-emergency yoga therapy request workflow
+- Admin role management
+- Profile and password management
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The wellness and therapy content is educational and must not be treated as medical diagnosis or emergency care.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Requirements
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- PHP 8.4.1 or newer for the currently locked dependencies
+- Composer 2
+- MySQL 8 or MariaDB-compatible MySQL server
+- Node.js 22 or another version supported by Vite 8
+- npm
 
-## Agentic Development
+Check the PHP command before starting:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```powershell
+php -v
+Get-Command php
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+On the original development computer, the correct PHP executable is `C:\php\php.exe`. The older XAMPP PHP 8.2 executable is not compatible with the current lock file.
 
-## Contributing
+## First-time setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```powershell
+composer install
+Copy-Item .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+Create a MySQL database named `gymravana`, then update the `DB_*` values in `.env`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```powershell
+php artisan migrate --seed
+npm install
+npm run build
+```
 
-## Security Vulnerabilities
+To optionally create a local demo administrator, set these values in `.env` before seeding:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```dotenv
+DEMO_ADMIN_EMAIL=your-admin@example.com
+DEMO_ADMIN_PASSWORD=choose-a-unique-local-password
+```
 
-## License
+Never commit `.env` or a real password.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Run locally
+
+Use two terminals:
+
+```powershell
+php artisan serve
+```
+
+```powershell
+npm run dev
+```
+
+Open `http://127.0.0.1:8000`.
+
+XAMPP may continue to run MySQL. Apache is not required when using `php artisan serve`.
+
+## Email verification during development
+
+Email verification is optional and does not block registration, login, dashboards, or member modules during the assignment phase. Laravel still creates verification links so the feature can be completed later without rebuilding authentication.
+
+The local environment uses `MAIL_MAILER=log`, so messages are written to `storage/logs/laravel.log` instead of being sent to a real inbox. A production SMTP or transactional email provider will be configured during the client-ready phase.
+
+## Run tests
+
+Tests use an in-memory SQLite database and do not modify the local MySQL database.
+
+```powershell
+composer test
+npm run build
+```
+
+## Important directories
+
+- `app/Models` — database-backed entities and relationships
+- `app/Http/Controllers` — request validation and application actions
+- `database/migrations` — database structure
+- `database/seeders` — roles and safe sample content
+- `resources/views` — Blade user interface
+- `routes/web.php` — protected web routes
+- `tests/Feature` — automated behaviour and security checks
+
+## Future phases
+
+The proposal's student role, verified indigenous-doctor role, payments, staff-to-member assignments, content management, consultations, and AI integration are intentionally deferred until the undergraduate MVP is stable and reviewed.
