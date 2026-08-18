@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'name',
@@ -52,11 +54,50 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(TherapyRequest::class);
     }
 
+    public function memberProfile(): HasOne
+    {
+        return $this->hasOne(MemberProfile::class);
+    }
+
+    public function trainerProfile(): HasOne
+    {
+        return $this->hasOne(TrainerProfile::class);
+    }
+
+    public function enrolledServices(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'member_service')->withPivot('started_at');
+    }
+
+    public function trainerBookings(): HasMany
+    {
+        return $this->hasMany(TrainerBooking::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function groupProgramRegistrations(): HasMany
+    {
+        return $this->hasMany(GroupProgramRegistration::class);
+    }
+
+    public function therapyAppointments(): HasMany
+    {
+        return $this->hasMany(TherapyAppointment::class);
+    }
+
+    public function contactEnquiries(): HasMany
+    {
+        return $this->hasMany(ContactEnquiry::class);
+    }
+
     public function dashboardRouteName(): string
     {
         return match (true) {
             $this->hasRole('admin') => 'admin.dashboard',
-            $this->hasRole('master') => 'master.dashboard',
             $this->hasRole('trainer') => 'trainer.dashboard',
             $this->hasRole('member') => 'member.dashboard',
             default => 'dashboard',

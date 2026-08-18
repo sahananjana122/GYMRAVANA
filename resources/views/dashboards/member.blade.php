@@ -1,42 +1,7 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h1 class="text-xl font-bold uppercase tracking-wide text-red-400">Member dashboard</h1>
-    </x-slot>
-
-    <section class="mb-8 rounded-xl border border-red-950 bg-zinc-900 p-6">
-        <p class="text-sm uppercase tracking-widest text-zinc-500">Welcome back</p>
-        <h2 class="mt-1 text-2xl font-bold">{{ auth()->user()->name }}</h2>
-        <p class="mt-2 text-zinc-400">Track your physical and mental wellness from one place.</p>
-    </section>
-
-    <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Total points" :value="$totalPoints" />
-        <x-stat-card label="Workouts completed" :value="$workoutCount" />
-        <x-stat-card label="Wellness sessions" :value="$wellnessCount" />
-        <x-stat-card label="Pending requests" :value="$pendingTherapyRequests" />
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <x-module-card title="Gym" description="Choose a workout and record its completion." :href="route('member.workouts.index')" action="View workouts" />
-        <x-module-card title="Body" description="Record weight and body measurements over time." :href="route('member.measurements.index')" action="Track measurements" />
-        <x-module-card title="Mind" description="Complete meditation, breathing and lifestyle activities." :href="route('member.wellness.index')" action="Open wellness" />
-        <x-module-card title="Yoga therapy" description="Submit a request for non-emergency wellness guidance." :href="route('member.therapy.index')" action="Request guidance" />
-    </div>
-
-    <section class="mt-8 rounded-xl border border-zinc-800 bg-black p-6">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-                <h3 class="font-semibold">Current progress</h3>
-                <p class="text-sm text-zinc-400">{{ $totalPoints % 100 }} / 100 points toward the next level</p>
-            </div>
-            <span class="rounded-full bg-red-950 px-3 py-1 text-sm text-red-200">Level {{ intdiv($totalPoints, 100) + 1 }}</span>
-        </div>
-        <div class="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
-            <div class="h-full rounded-full bg-red-600" style="width: {{ $totalPoints % 100 }}%"></div>
-        </div>
-        <p class="mt-4 text-sm text-zinc-500">
-            {{ $latestMeasurement ? 'Last measurement: '.$latestMeasurement->recorded_on->format('d M Y') : 'No body measurements recorded yet.' }}
-            {{ $availableWorkouts }} workout plans are currently available.
-        </p>
-    </section>
+<x-app-layout><x-slot name="header"><p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Member space</p><h1 class="mt-2 text-2xl font-black">Welcome back, {{ $user->name }}</h1></x-slot>
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><x-stat-card label="Total points" :value="$totalPoints"/><x-stat-card label="Workouts completed" :value="$workoutCount"/><x-stat-card label="Mind sessions" :value="$wellnessCount"/><x-stat-card label="Pending therapy" :value="$pendingTherapyRequests"/></div>
+<section class="mt-8 grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><div class="rounded-[2rem] border border-white/10 bg-gradient-to-br from-lime-400/15 to-transparent p-7"><p class="text-sm text-stone-500">Current membership</p><h2 class="mt-2 text-3xl font-black">{{ $user->memberProfile?->membershipTier?->name ?? 'Tier not assigned' }}</h2><p class="mt-3 text-stone-400">{{ $user->memberProfile?->membershipTier ? 'LKR '.number_format($user->memberProfile->membershipTier->price).' / '.$user->memberProfile->membershipTier->billing_period : 'Ask an administrator to assign your membership tier.' }}</p><a href="{{ route('memberships.index') }}" class="mt-6 inline-flex font-bold text-lime-300">Compare tiers →</a></div><div class="rounded-[2rem] border border-white/10 p-7"><div class="flex justify-between"><div><p class="text-sm text-stone-500">Progress level</p><h2 class="mt-2 text-3xl font-black">Level {{ intdiv($totalPoints, 100) + 1 }}</h2></div><span class="text-lime-300">{{ $totalPoints % 100 }}/100</span></div><div class="mt-7 h-2 rounded-full bg-white/10"><div class="h-2 rounded-full bg-lime-400" style="width: {{ $totalPoints % 100 }}%"></div></div><p class="mt-4 text-sm text-stone-500">{{ $latestMeasurement ? 'Last measurement '.$latestMeasurement->recorded_on->format('d M Y') : 'No measurements recorded yet.' }}</p></div></section>
+<section class="mt-10"><div class="flex items-end justify-between"><div><p class="section-kicker">My services</p><h2 class="mt-2 text-3xl font-black">Started paths</h2></div><a href="{{ route('services.index') }}" class="text-sm font-bold text-lime-300">Browse services →</a></div><div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">@forelse ($user->enrolledServices as $service)<x-module-card :title="$service->name" :description="$service->summary" :href="route('services.show', [$service->category, $service])" action="Continue"/>@empty<div class="rounded-3xl border border-dashed border-white/15 p-6 text-stone-500">You have not started a service yet.</div>@endforelse</div></section>
+<section class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4"><x-module-card title="Workout library" description="Complete structured workouts and build points." :href="route('member.workouts.index')" action="Open workouts"/><x-module-card title="Body progress" description="Record weight and body measurements." :href="route('member.measurements.index')" action="Track progress"/><x-module-card title="Mind activities" description="Complete breathing and meditation activities." :href="route('member.wellness.index')" action="Open wellness"/><x-module-card title="Yoga therapy" description="View your requests or submit another follow-up." :href="route('member.therapy.index')" action="View requests"/></section>
+<section class="mt-10 grid gap-6 lg:grid-cols-2"><div class="rounded-3xl border border-white/10 p-6"><h2 class="text-xl font-black">Trainer bookings</h2><div class="mt-5 space-y-3">@forelse ($bookings as $booking)<div class="flex justify-between gap-4 border-b border-white/10 pb-3 text-sm"><span>{{ $booking->trainerProfile->user->name }}<small class="block text-stone-500">{{ $booking->requested_datetime->format('d M Y, H:i') }}</small></span><span class="tag">{{ ucfirst($booking->status) }}</span></div>@empty<p class="text-sm text-stone-500">No trainer bookings yet.</p>@endforelse</div></div><div class="rounded-3xl border border-white/10 p-6"><h2 class="text-xl font-black">Recent orders</h2><div class="mt-5 space-y-3">@forelse ($orders as $order)<div class="flex justify-between gap-4 border-b border-white/10 pb-3 text-sm"><span>{{ Str::limit($order->order_number, 13) }}<small class="block text-stone-500">{{ $order->created_at->format('d M Y') }}</small></span><span>LKR {{ number_format($order->total) }} · {{ ucfirst($order->status) }}</span></div>@empty<p class="text-sm text-stone-500">No orders linked to your account.</p>@endforelse</div></div></section>
 </x-app-layout>

@@ -5,3 +5,81 @@
 [x-cloak] {
     display: none !important;
 }
+
+html {
+    scroll-padding-top: 7rem;
+}
+
+@layer components {
+    .section-kicker {
+        @apply text-xs font-black uppercase tracking-[0.24em] text-lime-300;
+    }
+
+    .section-title {
+        @apply mt-4 max-w-3xl text-4xl font-black leading-tight tracking-tight sm:text-5xl;
+    }
+
+    .page-title {
+        @apply mt-5 max-w-4xl text-4xl font-black leading-tight tracking-tight sm:text-6xl;
+    }
+
+    .page-lead {
+        @apply mt-5 max-w-3xl text-lg leading-8 text-stone-400;
+    }
+
+    .tag {
+        @apply inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-stone-400;
+    }
+
+    .form-label {
+        @apply mb-2 block text-sm font-bold text-stone-300;
+    }
+
+    .form-input {
+        @apply block w-full rounded-2xl border-white/10 bg-black/30 text-stone-100 placeholder-stone-600 shadow-none focus:border-lime-400 focus:ring-lime-400;
+    }
+
+    .category-pill {
+        @apply rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-stone-400 transition hover:border-lime-400/50 hover:text-lime-300;
+    }
+
+    .category-pill-active {
+        @apply border-lime-400 bg-lime-400 text-black hover:text-black;
+    }
+
+    .public-page-shell {
+        @apply min-h-[60vh] overflow-hidden;
+    }
+
+    .public-container {
+        @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+    }
+
+    .public-section {
+        @apply py-20 sm:py-24;
+    }
+
+    .public-panel {
+        @apply rounded-[2rem] border border-white/10 bg-white/[.035];
+    }
+
+    .mobile-public-link {
+        @apply rounded-xl px-4 py-3 transition hover:bg-[#f1f3ef] hover:text-[#10231d];
+    }
+
+    .footer-heading {
+        @apply text-xs font-black uppercase tracking-[0.2em] text-[#819087];
+    }
+
+    .footer-links {
+        @apply mt-5 grid gap-3 text-sm font-bold text-[#43534c];
+    }
+
+    .footer-links a {
+        @apply transition hover:translate-x-0.5 hover:text-[#5f8f16];
+    }
+
+    .social-link {
+        @apply grid h-10 w-10 place-items-center rounded-full border border-[#dce1db] text-xs font-black transition hover:border-lime-500 hover:bg-lime-50;
+    }
+}

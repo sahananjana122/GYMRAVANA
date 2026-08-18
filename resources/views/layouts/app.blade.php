@@ -1,86 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'GymRaavana') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="min-h-screen bg-zinc-950 font-sans text-zinc-100 antialiased">
-    @php($dashboardRoute = auth()->user()->dashboardRouteName())
-
-    <nav x-data="{ open: false }" class="border-b border-red-950 bg-black">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex h-16 items-center justify-between">
-                <a href="{{ route($dashboardRoute) }}" class="flex items-center gap-3">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-red-700 font-black">R</span>
-                    <span class="text-lg font-bold uppercase tracking-widest">Gym<span class="text-red-500">Raavana</span></span>
-                </a>
-
-                <div class="hidden items-center gap-5 text-sm md:flex">
-                    <a href="{{ route($dashboardRoute) }}" class="hover:text-red-400">Dashboard</a>
-                    @role('member')
-                        <a href="{{ route('member.workouts.index') }}" class="hover:text-red-400">Workouts</a>
-                        <a href="{{ route('member.measurements.index') }}" class="hover:text-red-400">Body</a>
-                        <a href="{{ route('member.wellness.index') }}" class="hover:text-red-400">Mind</a>
-                        <a href="{{ route('member.therapy.index') }}" class="hover:text-red-400">Therapy</a>
-                    @endrole
-                    @role('admin')
-                        <a href="{{ route('admin.users.index') }}" class="hover:text-red-400">Users</a>
-                        <a href="{{ route('therapy.manage') }}" class="hover:text-red-400">Therapy requests</a>
-                    @endrole
-                    @role('trainer')
-                        <a href="{{ route('therapy.manage') }}" class="hover:text-red-400">Therapy requests</a>
-                    @endrole
-                    <a href="{{ route('profile.edit') }}" class="hover:text-red-400">Profile</a>
-                    <span class="rounded-full bg-red-950 px-3 py-1 text-xs uppercase text-red-200">
-                        {{ auth()->user()->getRoleNames()->first() ?? 'unassigned' }}
-                    </span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="rounded-md border border-zinc-700 px-3 py-1.5 hover:border-red-600 hover:text-red-400">Log out</button>
-                    </form>
-                </div>
-
-                <button type="button" @click="open = ! open" class="rounded p-2 text-zinc-300 md:hidden" aria-label="Toggle navigation">
-                    <span x-show="! open">Menu</span>
-                    <span x-show="open" x-cloak>Close</span>
-                </button>
-            </div>
-
-            <div x-show="open" x-cloak class="space-y-2 border-t border-zinc-800 py-4 text-sm md:hidden">
-                <a href="{{ route($dashboardRoute) }}" class="block py-2">Dashboard</a>
-                @role('member')
-                    <a href="{{ route('member.workouts.index') }}" class="block py-2">Workouts</a>
-                    <a href="{{ route('member.measurements.index') }}" class="block py-2">Body measurements</a>
-                    <a href="{{ route('member.wellness.index') }}" class="block py-2">Mind and wellness</a>
-                    <a href="{{ route('member.therapy.index') }}" class="block py-2">Therapy requests</a>
-                @endrole
-                @role('admin')<a href="{{ route('admin.users.index') }}" class="block py-2">Manage users</a>@endrole
-                @hasanyrole('admin|trainer')<a href="{{ route('therapy.manage') }}" class="block py-2">Manage therapy requests</a>@endhasanyrole
-                <a href="{{ route('profile.edit') }}" class="block py-2">Profile</a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="py-2 text-red-400">Log out</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    @isset($header)
-        <header class="border-b border-zinc-800 bg-zinc-900/70">
-            <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">{{ $header }}</div>
-        </header>
-    @endisset
-
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        @if (session('status'))
-            <div class="mb-6 rounded-lg border border-emerald-800 bg-emerald-950/50 px-4 py-3 text-emerald-200">
-                {{ session('status') }}
-            </div>
-        @endif
-        {{ $slot }}
-    </main>
-</body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><title>{{ config('app.name', 'GymRaavana') }} Dashboard</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
+<body class="min-h-screen bg-[#0b0d0c] font-sans text-stone-100 antialiased">
+@php($dashboardRoute = auth()->user()->dashboardRouteName())
+<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-white/10 bg-[#0b0d0c]/95 backdrop-blur-xl"><div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8"><a href="{{ route($dashboardRoute) }}" class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-lime-400 text-sm font-black text-black">GR</span><span class="font-black uppercase tracking-[0.16em]">Gym<span class="text-lime-400">Raavana</span></span></a><div class="hidden items-center gap-5 text-sm font-semibold text-stone-300 lg:flex"><a href="{{ route('home') }}" class="hover:text-lime-300">Public site</a><a href="{{ route($dashboardRoute) }}" class="hover:text-lime-300">Dashboard</a>@role('member')<a href="{{ route('services.index') }}" class="hover:text-lime-300">Services</a><a href="{{ route('trainers.index') }}" class="hover:text-lime-300">Trainers</a><a href="{{ route('member.measurements.index') }}" class="hover:text-lime-300">Progress</a>@endrole @role('trainer')<a href="{{ route('trainer.bookings.index') }}" class="hover:text-lime-300">Bookings</a><a href="{{ route('trainer.profile.edit') }}" class="hover:text-lime-300">Trainer profile</a>@endrole @role('admin')<a href="{{ route('admin.trainers.index') }}" class="hover:text-lime-300">Applications</a><a href="{{ route('admin.orders.index') }}" class="hover:text-lime-300">Orders</a><a href="{{ route('admin.products.index') }}" class="hover:text-lime-300">Products</a>@endrole<a href="{{ route('profile.edit') }}" class="hover:text-lime-300">Account</a><span class="rounded-full bg-white/10 px-3 py-1 text-xs uppercase">{{ auth()->user()->getRoleNames()->first() ?? 'unassigned' }}</span><form method="POST" action="{{ route('logout') }}">@csrf<button class="rounded-full border border-white/15 px-4 py-2 hover:border-lime-400">Log out</button></form></div><button @click="open = !open" class="rounded-xl border border-white/15 px-3 py-2 text-sm lg:hidden">Menu</button></div><div x-show="open" x-cloak class="border-t border-white/10 px-5 py-5 lg:hidden"><div class="grid gap-1 text-sm font-semibold"><a href="{{ route('home') }}" class="rounded-xl px-3 py-3">Public site</a><a href="{{ route($dashboardRoute) }}" class="rounded-xl px-3 py-3">Dashboard</a>@role('member')<a href="{{ route('services.index') }}" class="rounded-xl px-3 py-3">Services</a><a href="{{ route('trainers.index') }}" class="rounded-xl px-3 py-3">Trainers</a><a href="{{ route('member.measurements.index') }}" class="rounded-xl px-3 py-3">Progress</a>@endrole @role('trainer')<a href="{{ route('trainer.bookings.index') }}" class="rounded-xl px-3 py-3">Bookings</a><a href="{{ route('trainer.profile.edit') }}" class="rounded-xl px-3 py-3">Trainer profile</a>@endrole @role('admin')<a href="{{ route('admin.trainers.index') }}" class="rounded-xl px-3 py-3">Trainer applications</a><a href="{{ route('admin.memberships.index') }}" class="rounded-xl px-3 py-3">Memberships</a><a href="{{ route('admin.services.index') }}" class="rounded-xl px-3 py-3">Services</a><a href="{{ route('admin.products.index') }}" class="rounded-xl px-3 py-3">Products</a><a href="{{ route('admin.orders.index') }}" class="rounded-xl px-3 py-3">Orders</a>@endrole<a href="{{ route('profile.edit') }}" class="rounded-xl px-3 py-3">Account</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="px-3 py-3 text-rose-300">Log out</button></form></div></div></nav>
+@isset($header)<header class="border-b border-white/10 bg-[#111411]"><div class="mx-auto max-w-7xl px-5 py-6 sm:px-8">{{ $header }}</div></header>@endisset
+<main class="mx-auto max-w-7xl px-5 py-9 sm:px-8">@if (session('status'))<div class="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4 text-emerald-200">{{ session('status') }}</div>@endif{{ $slot }}</main>
+</body></html>

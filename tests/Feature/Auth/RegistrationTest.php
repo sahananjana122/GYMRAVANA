@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\MembershipTier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,10 +20,13 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $this->seed();
+        $tier = MembershipTier::first();
 
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'application_type' => 'member',
+            'membership_tier_id' => $tier->id,
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
@@ -35,11 +39,14 @@ class RegistrationTest extends TestCase
     public function test_public_registration_cannot_assign_a_privileged_role(): void
     {
         $this->seed();
+        $tier = MembershipTier::first();
 
         $this->post('/register', [
             'name' => 'Untrusted User',
             'email' => 'untrusted@example.com',
             'role' => 'trainer',
+            'application_type' => 'member',
+            'membership_tier_id' => $tier->id,
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);

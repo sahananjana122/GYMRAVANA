@@ -1,0 +1,5 @@
+@extends('layouts.public')
+@section('title', $activeCategory?->name ?? 'Products')
+@section('content')
+<main class="mx-auto max-w-7xl px-5 py-20 sm:px-8"><p class="section-kicker">GymRaavana store</p><h1 class="page-title">{{ $activeCategory?->name ?? 'Practical essentials for your routine.' }}</h1><p class="page-lead">Browse publicly and check out as a guest. Payment is intentionally mocked in this student MVP.</p><div class="mt-10 flex flex-wrap gap-2"><a href="{{ route('products.index') }}" class="category-pill {{ ! $activeCategory ? 'category-pill-active' : '' }}">All products</a>@foreach ($categories as $category)<a href="{{ route('products.category', $category) }}" class="category-pill {{ $activeCategory?->is($category) ? 'category-pill-active' : '' }}">{{ $category->name }} <span class="opacity-50">{{ $category->products_count }}</span></a>@endforeach</div><div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">@forelse ($products as $product)<x-product-card :product="$product" />@empty<p class="text-stone-500">No active products are available in this category.</p>@endforelse</div></main>
+@endsection

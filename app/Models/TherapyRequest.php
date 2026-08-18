@@ -13,16 +13,22 @@ class TherapyRequest extends Model
     public const STATUSES = ['pending', 'reviewed', 'scheduled', 'completed', 'cancelled'];
 
     protected $fillable = [
-        'user_id', 'subject', 'symptoms', 'preferred_date', 'status', 'practitioner_notes',
+        'user_id', 'therapy_category_id', 'name', 'contact_email', 'contact_phone', 'category',
+        'preferred_datetime', 'notes', 'subject', 'symptoms', 'preferred_date', 'status', 'practitioner_notes',
     ];
 
     protected function casts(): array
     {
-        return ['preferred_date' => 'date'];
+        return ['preferred_date' => 'date', 'preferred_datetime' => 'datetime'];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function therapyCategory(): BelongsTo
+    {
+        return $this->belongsTo(TherapyCategory::class);
     }
 }

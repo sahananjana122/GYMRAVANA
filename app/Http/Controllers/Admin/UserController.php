@@ -15,7 +15,7 @@ class UserController extends Controller
     {
         return view('admin.users.index', [
             'users' => User::with('roles')->orderBy('name')->paginate(20),
-            'roles' => ['member', 'trainer', 'master', 'admin'],
+            'roles' => ['member', 'trainer', 'admin'],
         ]);
     }
 
@@ -24,7 +24,7 @@ class UserController extends Controller
         abort_if($request->user()->is($user), 422, 'You cannot change your own role.');
 
         $validated = $request->validate([
-            'role' => ['required', Rule::in(['member', 'trainer', 'master', 'admin'])],
+            'role' => ['required', Rule::in(['member', 'trainer', 'admin'])],
         ]);
 
         $user->syncRoles([$validated['role']]);

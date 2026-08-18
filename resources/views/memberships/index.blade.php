@@ -1,0 +1,5 @@
+@extends('layouts.public')
+@section('title', 'Memberships')
+@section('content')
+<main class="mx-auto max-w-7xl px-5 py-20 sm:px-8"><div class="text-center"><p class="section-kicker">Memberships</p><h1 class="page-title mx-auto">A clear tier for every starting point.</h1><p class="page-lead mx-auto">Select your tier during member registration. You can request an upgrade later from your dashboard.</p></div><div class="mt-16 grid gap-6 lg:grid-cols-3">@foreach ($tiers as $tier)<x-tier-card :tier="$tier" />@endforeach</div><div class="mt-14 rounded-[2rem] border border-white/10 bg-white/[.035] p-7 text-center"><h2 class="text-2xl font-black">Applying as a personal trainer?</h2><p class="mt-3 text-stone-400">Choose “Personal trainer” on the registration form and submit your specialty, bio and certifications for admin review.</p><a href="{{ route('register', ['type' => 'trainer']) }}" class="mt-6 inline-flex rounded-full border border-lime-400 px-6 py-3 font-bold text-lime-300">Start trainer application</a></div></main>
+@endsection
