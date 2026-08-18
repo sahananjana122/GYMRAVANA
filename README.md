@@ -1,74 +1,64 @@
-# GymRaavana Lifestyle System
+# GymRAVANA Wellness Platform
 
-GymRaavana is an undergraduate software engineering project built with Laravel. It demonstrates authentication, optional email verification, role-based access control, database-backed wellness modules, validation, responsive Blade interfaces, and automated feature tests.
+GymRAVANA is an undergraduate software engineering project built with Laravel, Blade, Tailwind CSS, Alpine.js, MySQL, and Spatie Laravel Permission. It combines a public fitness website with role-based member, trainer, and administrator workflows.
 
-## Implemented roles
+## Implemented features
 
-- **Member** — records workouts and measurements, completes wellness activities, earns points, and submits therapy requests.
-- **Trainer** — views operational statistics and reviews therapy requests.
-- **Master** — sees members who reach the configured points threshold.
-- **Admin** — manages user roles and therapy requests.
+- Public landing, About, Programs, Group Programs, Contact, membership, trainer, yoga therapy, and fitness-store pages
+- Guest/member group-class joining requests and database-backed contact enquiries with validation and rate limiting
+- Guest and signed-in shopping cart with mock checkout, inventory reduction, order records, and confirmation pages
+- Member registration with membership selection and optional email verification
+- Trainer applications with administrator approval before public listing
+- Searchable trainer directory with specialization/gender filters, detailed profiles, experience, and program-specific booking requests
+- Role-specific dashboards for members, trainers, and administrators
+- Member workout, measurement, wellness activity, points, therapy, service enrolment, booking, and order information
+- Trainer profile editing and booking status management
+- Administrator management for users, trainer applications, memberships, services, products, orders, bookings, and therapy requests
+- Seeded demonstration content and automated feature tests
 
-Public registration creates members only. Privileged roles must be assigned by an administrator.
-
-## Implemented MVP modules
-
-- Role-aware dashboards
-- Workout plans and daily completion tracking
-- Body measurement history
-- Meditation, breathing, and lifestyle activity tracking
-- Points and level calculation
-- Non-emergency yoga therapy request workflow
-- Admin role management
-- Profile and password management
-
-The wellness and therapy content is educational and must not be treated as medical diagnosis or emergency care.
+The therapy material is educational and is not medical diagnosis or emergency care. Checkout is intentionally a mock workflow; no real payment gateway is connected.
 
 ## Requirements
 
-- PHP 8.4.1 or newer for the currently locked dependencies
+- PHP 8.4.1 or a version compatible with `composer.lock`
 - Composer 2
-- MySQL 8 or MariaDB-compatible MySQL server
-- Node.js 22 or another version supported by Vite 8
+- MySQL 8 or a compatible MariaDB server
+- Node.js 22 or a version supported by Vite 8
 - npm
 
-Check the PHP command before starting:
-
-```powershell
-php -v
-Get-Command php
-```
-
-On the original development computer, the correct PHP executable is `C:\php\php.exe`. The older XAMPP PHP 8.2 executable is not compatible with the current lock file.
+On the original development computer, use `C:\php\php.exe`. The older XAMPP PHP 8.2 executable does not satisfy the current dependency lock file. XAMPP can still provide MySQL.
 
 ## First-time setup
+
+From the `ravana-app` directory:
 
 ```powershell
 composer install
 Copy-Item .env.example .env
 php artisan key:generate
+npm install
 ```
 
-Create a MySQL database named `gymravana`, then update the `DB_*` values in `.env`.
+Create a MySQL database named `gymravana`, put its credentials in `.env`, and run:
 
 ```powershell
 php artisan migrate --seed
-npm install
+php artisan storage:link
 npm run build
 ```
 
-To optionally create a local demo administrator, set these values in `.env` before seeding:
+To create a local administrator while seeding, add unique development credentials to `.env`:
 
 ```dotenv
-DEMO_ADMIN_EMAIL=your-admin@example.com
-DEMO_ADMIN_PASSWORD=choose-a-unique-local-password
+DEMO_ADMIN_EMAIL=admin@example.test
+DEMO_ADMIN_PASSWORD=replace-with-a-private-password
 ```
 
-Never commit `.env` or a real password.
+Never commit `.env`, database exports, passwords, API keys, or generated cache files.
 
 ## Run locally
 
-Use two terminals:
+Use two terminals from the project directory:
 
 ```powershell
 php artisan serve
@@ -78,35 +68,43 @@ php artisan serve
 npm run dev
 ```
 
-Open `http://127.0.0.1:8000`.
+Then open `http://127.0.0.1:8000`. Apache is not required when using `php artisan serve`; starting MySQL from XAMPP is sufficient.
 
-XAMPP may continue to run MySQL. Apache is not required when using `php artisan serve`.
+## Development behaviour
 
-## Email verification during development
+- Email verification is optional and does not block login or dashboards.
+- `MAIL_MAILER=log` records verification links in `storage/logs/laravel.log`; it does not deliver real email.
+- Public registration permits only member registration or a trainer application. Admin access cannot be self-assigned.
+- New trainer applications remain hidden from the public directory until approved by an administrator.
+- Store checkout records an order and reduces stock but does not charge a card.
+- Prices are stored and displayed in Sri Lankan rupees (LKR).
 
-Email verification is optional and does not block registration, login, dashboards, or member modules during the assignment phase. Laravel still creates verification links so the feature can be completed later without rebuilding authentication.
+Design and implementation decisions made where the brief was ambiguous are recorded in [ASSUMPTIONS.md](ASSUMPTIONS.md).
 
-The local environment uses `MAIL_MAILER=log`, so messages are written to `storage/logs/laravel.log` instead of being sent to a real inbox. A production SMTP or transactional email provider will be configured during the client-ready phase.
+## Validation
 
-## Run tests
-
-Tests use an in-memory SQLite database and do not modify the local MySQL database.
+Tests use an in-memory SQLite database and do not modify local MySQL data.
 
 ```powershell
 composer test
+composer validate --strict
 npm run build
+php artisan route:list
+php artisan migrate:status
+git diff --check
 ```
 
 ## Important directories
 
-- `app/Models` — database-backed entities and relationships
-- `app/Http/Controllers` — request validation and application actions
+- `app/Models` — data entities and relationships
+- `app/Http/Controllers` — validation and application workflows
 - `database/migrations` — database structure
-- `database/seeders` — roles and safe sample content
-- `resources/views` — Blade user interface
-- `routes/web.php` — protected web routes
-- `tests/Feature` — automated behaviour and security checks
+- `database/seeders` — roles and demonstration content
+- `resources/views` — Blade pages and reusable components
+- `resources/css/app.css` — Tailwind component styles
+- `routes/web.php` — public and protected routes
+- `tests/Feature` — behavioural and access-control tests
 
-## Future phases
+## Deferred client-ready work
 
-The proposal's student role, verified indigenous-doctor role, payments, staff-to-member assignments, content management, consultations, and AI integration are intentionally deferred until the undergraduate MVP is stable and reviewed.
+Production hosting, HTTPS, SMTP delivery, mandatory verification, a real payment provider, media optimisation, backups, monitoring, privacy/legal review, and the locally trained Hugging Face/Kaggle AI feature remain separate later phases. The current codebase establishes the functional and testable foundation for those additions.
