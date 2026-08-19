@@ -64,5 +64,9 @@ class RoleAccessTest extends TestCase
         $this->actingAs($admin)->get(route('admin.users.index'))->assertOk();
         $this->actingAs($admin)->get(route('admin.therapy.index'))->assertOk();
         $this->actingAs($admin)->get(route('admin.therapy-appointments.index'))->assertOk();
+        $this->actingAs($admin)
+            ->get(route('admin.trainers.index'))
+            ->assertOk()
+            ->assertSee('Trainer applications');
     }
 }
