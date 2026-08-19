@@ -22,13 +22,19 @@ class ContactController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:3000'],
+            'source' => ['nullable', 'in:home,contact'],
         ]);
+
+        $source = $validated['source'] ?? 'contact';
+        unset($validated['source']);
 
         ContactEnquiry::create($validated + [
             'user_id' => $request->user()?->id,
             'status' => 'new',
         ]);
 
-        return redirect()->route('contact.index')->with('status', 'Thank you. Your message has been sent to the GymRAVANA team.');
+        $redirect = $source === 'home' ? route('home').'#contact' : route('contact.index');
+
+        return redirect($redirect)->with('status', 'Thank you. Your message has been sent to the GymRAVANA team.');
     }
 }

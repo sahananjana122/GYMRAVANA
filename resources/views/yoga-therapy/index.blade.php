@@ -8,7 +8,7 @@
             <h1 class="page-title">Request a more restorative approach.</h1>
             <p class="page-lead">Tell us what kind of non-emergency wellness support you are looking for. No account is required; a team member will contact you.</p>
             <a href="{{ route('therapy-finder.index') }}" class="mt-7 inline-flex rounded-full bg-lime-300 px-6 py-3 font-black text-[#10231d]">Try the guided therapy finder &rarr;</a>
-            <div class="mt-10 grid gap-3">
+            <div id="therapy-categories" class="mt-10 grid scroll-mt-32 gap-3">
                 @foreach ($categories as $category)
                     <div class="rounded-2xl border border-white/10 p-5">
                         <h2 class="font-bold text-rose-300">{{ $category->name }}</h2>

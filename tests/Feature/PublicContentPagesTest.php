@@ -27,6 +27,23 @@ class PublicContentPagesTest extends TestCase
         $this->get(route('services.index'))->assertOk()->assertSee('Choose a path');
     }
 
+    public function test_premium_landing_page_reuses_platform_content_and_real_routes(): void
+    {
+        $response = $this->get(route('home'));
+
+        $response->assertOk()
+            ->assertSee('Your strongest chapter starts here.')
+            ->assertSee('Gym Workout')
+            ->assertSee('Yoga Flow')
+            ->assertSee('Kavindi Perera')
+            ->assertSee('Stress Relief')
+            ->assertSee('Dr. Nirmala Jayasinghe')
+            ->assertSee(route('therapy-finder.index'))
+            ->assertSee(route('trainers.index'))
+            ->assertSee('/images/landing/hero.jpg')
+            ->assertDontSee('ddxfitness.ru');
+    }
+
     public function test_guest_can_submit_a_contact_enquiry(): void
     {
         $this->post(route('contact.store'), [
@@ -52,6 +69,23 @@ class PublicContentPagesTest extends TestCase
         ])->assertSessionHasErrors(['name', 'email', 'message']);
 
         $this->assertSame(0, ContactEnquiry::count());
+    }
+
+    public function test_landing_contact_form_returns_to_the_contact_section(): void
+    {
+        $this->post(route('contact.store'), [
+            'name' => 'Landing Visitor',
+            'email' => 'landing@example.test',
+            'subject' => 'Personal training',
+            'message' => 'Please help me choose a suitable personal training starting point.',
+            'source' => 'home',
+        ])->assertRedirect(route('home').'#contact')->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('contact_enquiries', [
+            'email' => 'landing@example.test',
+            'subject' => 'Personal training',
+            'status' => 'new',
+        ]);
     }
 
     public function test_guest_and_member_group_program_requests_are_stored_correctly(): void
