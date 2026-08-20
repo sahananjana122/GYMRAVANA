@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\BookingManagementController;
+use App\Http\Controllers\Admin\EventManagementController;
 use App\Http\Controllers\Admin\MembershipTierController as AdminMembershipTierController;
 use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\ProductManagementController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupProgramController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MembershipController;
@@ -36,6 +38,7 @@ Route::get('/about', [AboutController::class, 'index'])->name('about.index');
 Route::get('/programs', [ServiceController::class, 'index'])->name('programs.index');
 Route::get('/group-programs', [GroupProgramController::class, 'index'])->name('group-programs.index');
 Route::post('/group-programs/{groupProgram}/register', [GroupProgramController::class, 'register'])->middleware('throttle:6,1')->name('group-programs.register');
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:6,1')->name('contact.store');
 
@@ -109,6 +112,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/services', [ServiceManagementController::class, 'index'])->name('services.index');
         Route::post('/services', [ServiceManagementController::class, 'store'])->name('services.store');
         Route::patch('/services/{service}', [ServiceManagementController::class, 'update'])->name('services.update');
+        Route::get('/events', [EventManagementController::class, 'index'])->name('events.index');
+        Route::post('/events', [EventManagementController::class, 'store'])->name('events.store');
+        Route::patch('/events/{event}', [EventManagementController::class, 'update'])->name('events.update');
+        Route::delete('/events/{event}', [EventManagementController::class, 'destroy'])->name('events.destroy');
         Route::get('/products', [ProductManagementController::class, 'index'])->name('products.index');
         Route::post('/product-categories', [ProductManagementController::class, 'storeCategory'])->name('product-categories.store');
         Route::post('/products', [ProductManagementController::class, 'store'])->name('products.store');

@@ -21,6 +21,7 @@
         <x-module-card title="Trainer applications" description="Approve or reject trainer profiles before public listing." :href="route('admin.trainers.index')" action="Review applications"/>
         <x-module-card title="Membership tiers" description="Edit pricing and manually reassign member tiers." :href="route('admin.memberships.index')" action="Manage tiers"/>
         <x-module-card title="Services" description="Manage Body and Mind service descriptions and availability." :href="route('admin.services.index')" action="Manage services"/>
+        <x-module-card title="Other events" description="Create, publish, edit and remove parties, workshops and endurance events." :href="route('admin.events.index')" action="Manage events"/>
         <x-module-card title="Products" description="Manage categories, prices and stock." :href="route('admin.products.index')" action="Manage products"/>
         <x-module-card title="Orders" description="Review guest and member orders and update fulfilment." :href="route('admin.orders.index')" action="Manage orders"/>
         <x-module-card title="Yoga therapy leads" description="Follow up with public and member therapy enquiries." :href="route('admin.therapy.index')" action="Review requests"/>

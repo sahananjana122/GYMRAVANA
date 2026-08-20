@@ -114,6 +114,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $this->call(EventSeeder::class);
         $this->seedProgramAndConsultationContent();
         $this->seedLegacyWellnessContent();
         $this->seedOptionalAdmin();
