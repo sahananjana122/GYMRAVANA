@@ -69,4 +69,14 @@ class RoleAccessTest extends TestCase
             ->assertOk()
             ->assertSee('Trainer applications');
     }
+
+    public function test_trainer_dashboard_is_rendered(): void
+    {
+        $trainer = User::role('trainer')->whereHas('trainerProfile')->firstOrFail();
+
+        $this->actingAs($trainer)
+            ->get(route('trainer.dashboard'))
+            ->assertOk()
+            ->assertSee('Trainer space');
+    }
 }

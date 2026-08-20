@@ -1,1 +1,50 @@
-<x-app-layout><x-slot name="header"><p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Trainer space</p><h1 class="mt-2 text-2xl font-black">{{ auth()->user()->name }}</h1></x-slot>@if (! $profile)<div class="rounded-3xl border border-rose-400/20 bg-rose-400/10 p-6">Your trainer profile is missing. Please contact an administrator.</div>@else<div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><section class="rounded-[2rem] border border-white/10 p-7"><div class="flex items-start justify-between gap-4"><div><p class="text-sm text-stone-500">Application status</p><h2 class="mt-2 text-3xl font-black">{{ str($profile->status)->replace('_', ' ')->title() }}</h2></div><span class="tag {{ $profile->status === 'approved' ? 'text-lime-300' : 'text-amber-300' }}">{{ $profile->specialty }}</span></div><p class="mt-5 leading-7 text-stone-400">{{ $profile->status === 'approved' ? 'Your public trainer profile is live and members can request bookings.' : 'Your profile stays private until an administrator completes review.' }}</p><a href="{{ route('trainer.profile.edit') }}" class="mt-6 inline-flex font-bold text-lime-300">Edit public profile →</a></section><x-stat-card label="Pending booking requests" :value="$pendingBookings"/></div><section class="mt-10 rounded-[2rem] border border-white/10 p-7"><div class="flex items-center justify-between"><h2 class="text-2xl font-black">Upcoming booking requests</h2><a href="{{ route('trainer.bookings.index') }}" class="text-sm font-bold text-lime-300">Manage all →</a></div><div class="mt-6 grid gap-4 md:grid-cols-2">@forelse ($upcomingBookings as $booking)<div class="rounded-2xl bg-white/[.035] p-5"><div class="flex justify-between gap-3"><strong>{{ $booking->member->name }}</strong><span class="tag">{{ ucfirst($booking->status) }}</span></div><p class="mt-3 text-sm text-stone-400">{{ $booking->requested_datetime->format('d M Y, H:i') }}</p><p class="mt-2 text-sm text-stone-500">{{ $booking->notes ?: 'No notes supplied.' }}</p></div>@empty<p class="text-stone-500">No upcoming requests.</p>@endforelse</div></section>@endif</x-app-layout>
+<x-app-layout>
+    <x-slot name="header">
+        <p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Trainer space</p>
+        <h1 class="mt-2 text-2xl font-black">{{ auth()->user()->name }}</h1>
+    </x-slot>
+
+    @if (! $profile)
+        <div class="rounded-3xl border border-rose-400/20 bg-rose-400/10 p-6">
+            Your trainer profile is missing. Please contact an administrator.
+        </div>
+    @else
+        <div class="grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
+            <section class="rounded-[2rem] border border-white/10 p-7">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-stone-500">Application status</p>
+                        <h2 class="mt-2 text-3xl font-black">{{ str($profile->status)->replace('_', ' ')->title() }}</h2>
+                    </div>
+                    <span class="tag {{ $profile->status === 'approved' ? 'text-lime-300' : 'text-amber-300' }}">{{ $profile->specialty }}</span>
+                </div>
+                <p class="mt-5 leading-7 text-stone-400">{{ $profile->status === 'approved' ? 'Your public trainer profile is live and members can request bookings.' : 'Your profile stays private until an administrator completes review.' }}</p>
+                <a href="{{ route('trainer.profile.edit') }}" class="mt-6 inline-flex font-bold text-lime-300">Edit public profile →</a>
+            </section>
+
+            <x-stat-card label="Pending booking requests" :value="$pendingBookings"/>
+        </div>
+
+        <section class="mt-10 rounded-[2rem] border border-white/10 p-7">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-black">Upcoming booking requests</h2>
+                <a href="{{ route('trainer.bookings.index') }}" class="text-sm font-bold text-lime-300">Manage all →</a>
+            </div>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+                @forelse ($upcomingBookings as $booking)
+                    <div class="rounded-2xl bg-white/[.035] p-5">
+                        <div class="flex justify-between gap-3">
+                            <strong>{{ $booking->member->name }}</strong>
+                            <span class="tag">{{ ucfirst($booking->status) }}</span>
+                        </div>
+                        <p class="mt-3 text-sm text-stone-400">{{ $booking->requested_datetime->format('d M Y, H:i') }}</p>
+                        <p class="mt-2 text-sm text-stone-500">{{ $booking->notes ?: 'No notes supplied.' }}</p>
+                    </div>
+                @empty
+                    <p class="text-stone-500">No upcoming requests.</p>
+                @endforelse
+            </div>
+        </section>
+    @endif
+</x-app-layout>
