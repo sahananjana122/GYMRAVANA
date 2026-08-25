@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\MemberProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -95,5 +97,23 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_member_can_save_an_optional_phone_number_for_reminder_links(): void
+    {
+        Role::create(['name' => 'member', 'guard_name' => 'web']);
+        $member = User::factory()->create();
+        $member->assignRole('member');
+        MemberProfile::create(['user_id' => $member->id, 'status' => 'active']);
+
+        $this->actingAs($member)
+            ->patch(route('profile.update'), [
+                'name' => $member->name,
+                'email' => $member->email,
+                'phone' => '+94 77 123 4567',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('+94 77 123 4567', $member->memberProfile->fresh()->phone);
     }
 }

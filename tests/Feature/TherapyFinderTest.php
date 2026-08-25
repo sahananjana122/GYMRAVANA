@@ -140,7 +140,13 @@ class TherapyFinderTest extends TestCase
             ->assertSee($treatment->name);
 
         $this->actingAs($admin)
-            ->patch(route('admin.therapy-appointments.update', $appointment), ['status' => 'confirmed'])
+            ->patch(route('admin.therapy-appointments.update', $appointment), [
+                'status' => 'confirmed',
+                'confirmed_start_at' => now()->addWeek()->startOfHour()->format('Y-m-d H:i:s'),
+                'duration_minutes' => 60,
+                'required_arrival_at' => now()->addWeek()->startOfHour()->subMinutes(15)->format('Y-m-d H:i:s'),
+                'preparation_instructions' => 'Wear comfortable clothing.',
+            ])
             ->assertSessionHasNoErrors();
 
         $this->assertSame('confirmed', $appointment->fresh()->status);

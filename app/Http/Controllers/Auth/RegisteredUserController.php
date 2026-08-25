@@ -32,6 +32,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'application_type' => ['required', Rule::in(['member', 'trainer'])],
             'membership_tier_id' => ['nullable', 'required_if:application_type,member', 'exists:membership_tiers,id'],
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+()\-\s]+$/'],
             'specialty' => ['nullable', 'required_if:application_type,trainer', 'string', 'max:150'],
             'gender' => ['nullable', Rule::in(['male', 'female', 'non_binary', 'prefer_not_to_say'])],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:60'],
@@ -61,7 +62,12 @@ class RegisteredUserController extends Controller
                 ]);
             } else {
                 $user->assignRole('member');
-                MemberProfile::create(['user_id' => $user->id, 'membership_tier_id' => $validated['membership_tier_id'], 'status' => 'active']);
+                MemberProfile::create([
+                    'user_id' => $user->id,
+                    'membership_tier_id' => $validated['membership_tier_id'],
+                    'phone' => $validated['phone'] ?? null,
+                    'status' => 'active',
+                ]);
             }
 
             return $user;

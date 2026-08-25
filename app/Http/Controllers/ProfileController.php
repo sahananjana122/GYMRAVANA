@@ -17,7 +17,7 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $request->user()->load('memberProfile'),
         ]);
     }
 
@@ -26,13 +26,29 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        $phone = $validated['phone'] ?? null;
+        $shareMeasurements = $request->boolean('share_measurements_with_trainer');
+        unset($validated['phone'], $validated['share_measurements_with_trainer']);
+
+        $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
         $request->user()->save();
+
+        if ($request->user()->hasRole('member')) {
+            $request->user()->memberProfile()->updateOrCreate(
+                ['user_id' => $request->user()->id],
+                [
+                    'phone' => $phone,
+                    'share_measurements_with_trainer' => $shareMeasurements,
+                    'status' => $request->user()->memberProfile?->status ?? 'active',
+                ],
+            );
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

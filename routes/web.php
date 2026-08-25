@@ -3,12 +3,17 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\BookingManagementController;
 use App\Http\Controllers\Admin\EventManagementController;
+use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\MembershipTierController as AdminMembershipTierController;
+use App\Http\Controllers\Admin\NoticeManagementController;
+use App\Http\Controllers\Admin\NotificationActivityController;
 use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\ProductManagementController;
 use App\Http\Controllers\Admin\ServiceManagementController;
+use App\Http\Controllers\Admin\TherapistAccountController;
 use App\Http\Controllers\Admin\TherapyAppointmentController as AdminTherapyAppointmentController;
 use App\Http\Controllers\Admin\TrainerApplicationController;
+use App\Http\Controllers\Admin\TrainerWorkController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\BodyMeasurementController;
 use App\Http\Controllers\CartController;
@@ -19,12 +24,18 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupProgramController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\NoticeBoardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\Therapist\AppointmentController as TherapistAppointmentController;
 use App\Http\Controllers\TherapyFinderController;
 use App\Http\Controllers\TherapyRequestController;
 use App\Http\Controllers\Trainer\BookingController as TrainerBookingController;
+use App\Http\Controllers\Trainer\LibraryController as TrainerLibraryController;
+use App\Http\Controllers\Trainer\MemberPlanController as TrainerMemberPlanController;
+use App\Http\Controllers\Trainer\MonthlyTrackerController as TrainerMonthlyTrackerController;
 use App\Http\Controllers\Trainer\ProfileController as TrainerProfileController;
 use App\Http\Controllers\TrainerDirectoryController;
 use App\Http\Controllers\WellnessController;
@@ -39,6 +50,7 @@ Route::get('/programs', [ServiceController::class, 'index'])->name('programs.ind
 Route::get('/group-programs', [GroupProgramController::class, 'index'])->name('group-programs.index');
 Route::post('/group-programs/{groupProgram}/register', [GroupProgramController::class, 'register'])->middleware('throttle:6,1')->name('group-programs.register');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/notice-board', [NoticeBoardController::class, 'index'])->name('notices.index');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:6,1')->name('contact.store');
 
@@ -71,6 +83,9 @@ Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])-
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'redirect'])->name('dashboard');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     Route::middleware('role:member')->group(function () {
         Route::get('/trainers/{trainerProfile}/book', [TrainerDirectoryController::class, 'bookingForm'])->name('trainers.book');
@@ -96,6 +111,23 @@ Route::middleware('auth')->group(function () {
         Route::patch('/profile', [TrainerProfileController::class, 'update'])->name('profile.update');
         Route::get('/bookings', [TrainerBookingController::class, 'index'])->name('bookings.index');
         Route::patch('/bookings/{trainerBooking}', [TrainerBookingController::class, 'update'])->name('bookings.update');
+        Route::post('/bookings/{trainerBooking}/reminder', [TrainerBookingController::class, 'remind'])->middleware('throttle:3,1')->name('bookings.remind');
+        Route::get('/plans', [TrainerMemberPlanController::class, 'index'])->name('plans.index');
+        Route::get('/plans/create', [TrainerMemberPlanController::class, 'create'])->name('plans.create');
+        Route::post('/plans', [TrainerMemberPlanController::class, 'store'])->name('plans.store');
+        Route::get('/plans/{memberPlan}', [TrainerMemberPlanController::class, 'show'])->name('plans.show');
+        Route::get('/plans/{memberPlan}/edit', [TrainerMemberPlanController::class, 'edit'])->name('plans.edit');
+        Route::patch('/plans/{memberPlan}', [TrainerMemberPlanController::class, 'update'])->name('plans.update');
+        Route::get('/tracker', [TrainerMonthlyTrackerController::class, 'index'])->name('tracker.index');
+        Route::put('/tracker/{member}', [TrainerMonthlyTrackerController::class, 'update'])->name('tracker.update');
+        Route::get('/library', [TrainerLibraryController::class, 'index'])->name('library.index');
+    });
+
+    Route::prefix('therapist')->name('therapist.')->middleware('role:therapist')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'therapist'])->name('dashboard');
+        Route::get('/appointments', [TherapistAppointmentController::class, 'index'])->name('appointments.index');
+        Route::patch('/appointments/{therapyAppointment}', [TherapistAppointmentController::class, 'update'])->name('appointments.update');
+        Route::post('/appointments/{therapyAppointment}/reminder', [TherapistAppointmentController::class, 'remind'])->middleware('throttle:3,1')->name('appointments.remind');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
@@ -105,6 +137,11 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/trainers', [TrainerApplicationController::class, 'index'])->name('trainers.index');
         Route::patch('/trainers/{trainerProfile}', [TrainerApplicationController::class, 'update'])->name('trainers.update');
+        Route::get('/therapists', [TherapistAccountController::class, 'index'])->name('therapists.index');
+        Route::post('/therapists', [TherapistAccountController::class, 'store'])->name('therapists.store');
+        Route::patch('/therapists/{therapySpecialist}', [TherapistAccountController::class, 'update'])->name('therapists.update');
+        Route::delete('/therapists/{therapySpecialist}', [TherapistAccountController::class, 'destroy'])->name('therapists.destroy');
+        Route::get('/notification-activity', [NotificationActivityController::class, 'index'])->name('notifications.index');
         Route::get('/memberships', [AdminMembershipTierController::class, 'index'])->name('memberships.index');
         Route::post('/memberships', [AdminMembershipTierController::class, 'store'])->name('memberships.store');
         Route::patch('/memberships/{membershipTier}', [AdminMembershipTierController::class, 'update'])->name('memberships.update');
@@ -116,18 +153,34 @@ Route::middleware('auth')->group(function () {
         Route::post('/events', [EventManagementController::class, 'store'])->name('events.store');
         Route::patch('/events/{event}', [EventManagementController::class, 'update'])->name('events.update');
         Route::delete('/events/{event}', [EventManagementController::class, 'destroy'])->name('events.destroy');
+        Route::get('/notices', [NoticeManagementController::class, 'index'])->name('notices.index');
+        Route::get('/notices/create', [NoticeManagementController::class, 'create'])->name('notices.create');
+        Route::post('/notices', [NoticeManagementController::class, 'store'])->name('notices.store');
+        Route::get('/notices/{notice}/edit', [NoticeManagementController::class, 'edit'])->name('notices.edit');
+        Route::patch('/notices/{notice}', [NoticeManagementController::class, 'update'])->name('notices.update');
+        Route::delete('/notices/{notice}', [NoticeManagementController::class, 'destroy'])->name('notices.destroy');
         Route::get('/products', [ProductManagementController::class, 'index'])->name('products.index');
         Route::post('/product-categories', [ProductManagementController::class, 'storeCategory'])->name('product-categories.store');
         Route::post('/products', [ProductManagementController::class, 'store'])->name('products.store');
         Route::patch('/products/{product}', [ProductManagementController::class, 'update'])->name('products.update');
         Route::get('/orders', [OrderManagementController::class, 'index'])->name('orders.index');
         Route::patch('/orders/{order}', [OrderManagementController::class, 'update'])->name('orders.update');
+        Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
+        Route::get('/finance/export', [FinanceController::class, 'export'])->name('finance.export');
+        Route::post('/finance/transactions', [FinanceController::class, 'storeTransaction'])->name('finance.transactions.store');
+        Route::patch('/finance/transactions/{financialTransaction}', [FinanceController::class, 'updateTransaction'])->name('finance.transactions.update');
+        Route::delete('/finance/transactions/{financialTransaction}', [FinanceController::class, 'destroyTransaction'])->name('finance.transactions.destroy');
+        Route::post('/finance/categories', [FinanceController::class, 'storeCategory'])->name('finance.categories.store');
+        Route::patch('/finance/categories/{financeCategory}', [FinanceController::class, 'updateCategory'])->name('finance.categories.update');
         Route::get('/bookings', [BookingManagementController::class, 'index'])->name('bookings.index');
         Route::patch('/bookings/{trainerBooking}', [BookingManagementController::class, 'update'])->name('bookings.update');
+        Route::post('/bookings/{trainerBooking}/reminder', [BookingManagementController::class, 'remind'])->middleware('throttle:3,1')->name('bookings.remind');
+        Route::get('/trainer-work', [TrainerWorkController::class, 'index'])->name('trainer-work.index');
         Route::get('/therapy-requests', [TherapyRequestController::class, 'manage'])->name('therapy.index');
         Route::patch('/therapy-requests/{therapyRequest}', [TherapyRequestController::class, 'update'])->name('therapy.update');
         Route::get('/therapy-appointments', [AdminTherapyAppointmentController::class, 'index'])->name('therapy-appointments.index');
         Route::patch('/therapy-appointments/{therapyAppointment}', [AdminTherapyAppointmentController::class, 'update'])->name('therapy-appointments.update');
+        Route::post('/therapy-appointments/{therapyAppointment}/reminder', [AdminTherapyAppointmentController::class, 'remind'])->middleware('throttle:3,1')->name('therapy-appointments.remind');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

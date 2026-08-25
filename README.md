@@ -1,19 +1,36 @@
 # GymRAVANA Wellness Platform
 
-GymRAVANA is an undergraduate software engineering project built with Laravel, Blade, Tailwind CSS, Alpine.js, MySQL, and Spatie Laravel Permission. It combines a public fitness website with role-based member, trainer, and administrator workflows.
+GymRAVANA is an undergraduate software engineering project built with Laravel, Blade, Tailwind CSS, Alpine.js, MySQL, and Spatie Laravel Permission. It combines a public fitness website with role-based member, trainer, therapist, and administrator workflows.
 
 ## Implemented features
 
-- Public landing, About, Programs, Group Programs, Contact, membership, trainer, yoga therapy, and fitness-store pages
+- Public landing, About, Programs, Group Programs, Other Events, Notice Board, Contact, membership, trainer, yoga therapy, and fitness-store pages
 - Guest/member group-class joining requests and database-backed contact enquiries with validation and rate limiting
 - Guest and signed-in shopping cart with mock checkout, inventory reduction, order records, and confirmation pages
 - Member registration with membership selection and optional email verification
 - Trainer applications with administrator approval before public listing
 - Searchable trainer directory with specialization/gender filters, detailed profiles, experience, and program-specific booking requests
-- Role-specific dashboards for members, trainers, and administrators
+- Trainer scheduling with pending-request review, confirmed start time, duration, required arrival time, preparation instructions, member messages, agenda filters, and a monthly calendar
+- Trainer/member collision protection so two accepted sessions cannot overlap for the same trainer or client
+- Therapist login accounts linked to public specialist profiles, with a private dashboard restricted to each therapist's own appointments
+- Therapy appointment scheduling with confirmed time, duration, required arrival, preparation instructions, client messages, filters, and therapist/client collision protection
+- Automatic database and email notifications for trainer and therapy confirmations or schedule updates, plus manually triggered reminders
+- In-app notification centre, administrator notification activity, five-minute reminder cooldowns, and optional WhatsApp click-to-chat links
+- Role-specific dashboards for members, trainers, therapists, and administrators
+- Three-section member dashboard for upcoming sessions, read-only assigned workout/meal plans, monthly progress, booking shortcuts, and library resources
+- Trainer plan builder for assigned clients with structured workout/meal items, start/end dates, draft/active/completed states, and preserved version history
+- Private monthly trainer tracker using existing workout, wellness, attendance, points, consistency, goal, rating, and assessment data
+- Member-controlled permission for sharing monthly weight/waist trends with assigned trainers; raw measurement notes are never shown in the tracker
+- Read-only administrator oversight of the latest trainer plans and private monthly reviews
+- Centrally configured external Google Drive books/movie library with URL validation, an external-link warning, and a safe unconfigured state
 - Member workout, measurement, wellness activity, points, therapy, service enrolment, booking, and order information
-- Trainer profile editing and booking status management
-- Administrator management for users, trainer applications, memberships, services, products, orders, bookings, and therapy requests
+- Four-area trainer dashboard for plans, booking sessions, the shared library, and monthly tracking, plus public profile editing
+- Administrator management for users, trainer applications, therapist accounts, memberships, services, events, notices, products, orders, schedules, notifications, and therapy requests
+- Searchable Notice Board management for announcements, linked upcoming events, achievements, monthly highlights, and manually selected monthly clients
+- Scheduled notice publication, validated image uploads, explicit client-photo consent records, and administrator-authored public statistics
+- Admin-only finance ledger with configurable income/expense categories, manual entries, date/type/category filters, financial summaries, source/programme breakdowns, and monthly trends
+- Idempotent product revenue synchronization when an administrator marks an existing order completed, with automatic reversal if that status is changed
+- Genuine four-sheet `.xlsx` finance exports with formatted summary, income, expense, and income-by-source worksheets
 - Seeded demonstration content and automated feature tests
 
 The therapy material is educational and is not medical diagnosis or emergency care. Checkout is intentionally a mock workflow; no real payment gateway is connected.
@@ -25,6 +42,7 @@ The therapy material is educational and is not medical diagnosis or emergency ca
 - MySQL 8 or a compatible MariaDB server
 - Node.js 22 or a version supported by Vite 8
 - npm
+- PHP DOM, XMLReader, and ZIP extensions for real Excel workbook generation
 
 On the original development computer, use `C:\php\php.exe`. The older XAMPP PHP 8.2 executable does not satisfy the current dependency lock file. XAMPP can still provide MySQL.
 
@@ -54,6 +72,15 @@ DEMO_ADMIN_EMAIL=admin@example.test
 DEMO_ADMIN_PASSWORD=replace-with-a-private-password
 ```
 
+To show the optional external member library, add the approved Google Drive URL in `.env`:
+
+```dotenv
+GYMRAVANA_LIBRARY_URL="https://drive.google.com/drive/folders/your-approved-folder"
+GYMRAVANA_LIBRARY_LABEL="GymRAVANA books and movies"
+```
+
+The URL is read only from `config/gymravana.php`. Google Drive permissions still control who can open the folder; GymRAVANA does not bypass them.
+
 Never commit `.env`, database exports, passwords, API keys, or generated cache files.
 
 ## Run locally
@@ -73,13 +100,51 @@ Then open `http://127.0.0.1:8000`. Apache is not required when using `php artisa
 ## Development behaviour
 
 - Email verification is optional and does not block login or dashboards.
-- `MAIL_MAILER=log` records verification links in `storage/logs/laravel.log`; it does not deliver real email.
+- `MAIL_MAILER=log` records verification and session emails in `storage/logs/laravel.log`; it does not deliver real email. Configure SMTP only in the later client-deployment phase.
 - Public registration permits only member registration or a trainer application. Admin access cannot be self-assigned.
 - New trainer applications remain hidden from the public directory until approved by an administrator.
+- Trainer booking requests begin as `pending`. A trainer or administrator must provide the confirmed start, duration, and required arrival time before accepting a session.
+- Members see the trainer's confirmed schedule, preparation instructions, and message on their own dashboard. They cannot view or modify another member's booking.
+- Therapy appointment requests also begin as `pending`. A linked therapist can see only appointments assigned to their specialist profile; administrators can manage all appointments.
+- Admins create or link therapist accounts under **Admin dashboard → Therapist accounts**. Public registration never offers therapist or administrator roles.
+- Confirming or changing a scheduled trainer/therapy session creates an in-app notification for a registered client and uses the configured mail channel. Guest therapy clients receive email when they supplied an email address.
+- The reminder button uses the same notification service and records the last reminder time/count. Repeated reminders are blocked for five minutes.
+- WhatsApp buttons are click-to-chat links only. They open a prefilled message when a valid phone number exists, but GymRAVANA does not send the message or claim delivery.
+- The member dashboard shows only that signed-in member's confirmed future sessions, non-draft assigned plans, plan items, and private monthly activity summary.
+- Assigned workout and meal plans remain read-only for members. Trainers create plans only for clients linked through an accepted or completed booking.
+- Saving a plan update creates a new version and archives the preceding version instead of overwriting history. Drafts remain trainer-only; active and completed versions are visible to the owning member.
+- Trainers open **Dashboard → Plans** to create/update plans and **Dashboard → Monthly tracker** to review existing activity and record monthly goals, completion, ratings, assessments, private notes, and next-month goals.
+- Monthly consistency is a transparent calculation: distinct active days divided by days elapsed in the current month (or all days in a completed month). It is not AI and is not a medical assessment.
+- Body-measurement trends are hidden from trainers by default. A member can enable or revoke sharing under **Account → Profile Information**; only monthly weight/waist change is shown, never raw measurement notes.
+- Administrators can inspect latest plans and monthly reviews under **Admin dashboard → Trainer plans & reviews**. This oversight page is read-only.
+- If `GYMRAVANA_LIBRARY_URL` is empty or unsafe, the dashboard shows a truthful “not configured” state instead of a broken or unsafe link.
+- Existing accepted bookings created before the scheduling migration are preserved. They appear in the booking agenda and can be completed once their confirmation details are added.
 - Store checkout records an order and reduces stock but does not charge a card.
 - Prices are stored and displayed in Sri Lankan rupees (LKR).
+- Notice images are stored on the `public` Laravel disk under `storage/app/public/notice-board`; run `php artisan storage:link` once so they are available to the website.
+- A monthly client photograph cannot be published unless an administrator explicitly confirms the member's consent. The public Notice Board never reads private body measurements automatically.
+- Finance reports are restricted to administrators and all values use LKR. Manual ledger entries should only be recorded after payment or an expense is confirmed.
+- A completed product order creates exactly one automatic income entry. Changing it away from `completed` voids that entry; completing it again reactivates the same record instead of duplicating revenue.
+- Memberships, group programmes, yoga, personal training, and therapy currently have no payment transaction in their existing workflows. Their confirmed payments are therefore entered manually under the appropriate seeded category rather than inferred from registrations or bookings.
+
+## Finance and Excel reports
+
+Open **Admin dashboard → Finance & reports** to record transactions, review totals and apply report filters. Automatic product-sale entries are read-only in Finance; correct them by changing the related order status so the order and ledger remain consistent.
+
+The **Export filtered .xlsx** button applies the same visible filters and downloads a real Excel workbook containing Summary, Income, Expenses, and Income by Source sheets. Workbook generation uses OpenSpout and stores only a temporary private report file, which Laravel deletes after download.
+
+The default finance categories are created by `FinanceSeeder`. Run this after pulling the phase if the database already exists:
+
+```powershell
+php artisan migrate
+php artisan db:seed --class=FinanceSeeder
+```
 
 Design and implementation decisions made where the brief was ambiguous are recorded in [ASSUMPTIONS.md](ASSUMPTIONS.md).
+
+## Roadmap status
+
+Phases 1–6 are implemented locally, completing the normal non-AI platform described in the current project brief. Phase 7 Master Gate and locally trained AI remain explicitly deferred and must not begin until the user gives separate authorization.
 
 ## Validation
 
@@ -107,4 +172,6 @@ git diff --check
 
 ## Deferred client-ready work
 
-Production hosting, HTTPS, SMTP delivery, mandatory verification, a real payment provider, media optimisation, backups, monitoring, privacy/legal review, and the locally trained Hugging Face/Kaggle AI feature remain separate later phases. The current codebase establishes the functional and testable foundation for those additions.
+Production hosting, HTTPS, SMTP delivery, mandatory verification, a real payment provider, media optimisation, backups, monitoring, and a formal privacy/legal review remain separate later phases.
+
+The locally trained progression-readiness AI and Master Gate are explicitly deferred to final Phase 7. They must not begin until Phases 1–6 are working and the user authorizes the AI phase.

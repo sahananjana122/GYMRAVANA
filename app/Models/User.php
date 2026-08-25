@@ -64,6 +64,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(TrainerProfile::class);
     }
 
+    public function therapySpecialist(): HasOne
+    {
+        return $this->hasOne(TherapySpecialist::class);
+    }
+
     public function enrolledServices(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'member_service')->withPivot('started_at');
@@ -72,6 +77,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function trainerBookings(): HasMany
     {
         return $this->hasMany(TrainerBooking::class);
+    }
+
+    public function memberPlans(): HasMany
+    {
+        return $this->hasMany(MemberPlan::class);
+    }
+
+    public function monthlyProgressReviews(): HasMany
+    {
+        return $this->hasMany(MonthlyProgressReview::class);
     }
 
     public function orders(): HasMany
@@ -94,11 +109,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ContactEnquiry::class);
     }
 
+    public function createdNotices(): HasMany
+    {
+        return $this->hasMany(Notice::class, 'created_by');
+    }
+
+    public function noticeHighlights(): HasMany
+    {
+        return $this->hasMany(Notice::class, 'member_id');
+    }
+
+    public function createdFinancialTransactions(): HasMany
+    {
+        return $this->hasMany(FinancialTransaction::class, 'created_by');
+    }
+
     public function dashboardRouteName(): string
     {
         return match (true) {
             $this->hasRole('admin') => 'admin.dashboard',
             $this->hasRole('trainer') => 'trainer.dashboard',
+            $this->hasRole('therapist') => 'therapist.dashboard',
             $this->hasRole('member') => 'member.dashboard',
             default => 'dashboard',
         };

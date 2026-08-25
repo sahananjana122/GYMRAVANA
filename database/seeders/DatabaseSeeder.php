@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (['member', 'trainer', 'admin'] as $role) {
+        foreach (['member', 'trainer', 'therapist', 'admin'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
@@ -115,6 +115,8 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(EventSeeder::class);
+        $this->call(NoticeSeeder::class);
+        $this->call(FinanceSeeder::class);
         $this->seedProgramAndConsultationContent();
         $this->seedLegacyWellnessContent();
         $this->seedOptionalAdmin();

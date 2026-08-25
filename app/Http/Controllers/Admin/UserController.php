@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         return view('admin.users.index', [
             'users' => User::with('roles')->orderBy('name')->paginate(20),
-            'roles' => ['member', 'trainer', 'admin'],
+            'roles' => ['member', 'trainer', 'therapist', 'admin'],
         ]);
     }
 
@@ -24,8 +25,18 @@ class UserController extends Controller
         abort_if($request->user()->is($user), 422, 'You cannot change your own role.');
 
         $validated = $request->validate([
-            'role' => ['required', Rule::in(['member', 'trainer', 'admin'])],
+            'role' => ['required', Rule::in(['member', 'trainer', 'therapist', 'admin'])],
         ]);
+
+        if ($validated['role'] === 'therapist' && ! $user->therapySpecialist()->exists()) {
+            throw ValidationException::withMessages([
+                'role' => 'Link this user to a therapy specialist from Therapist accounts before assigning the therapist role.',
+            ]);
+        }
+
+        if ($user->hasRole('therapist') && $validated['role'] !== 'therapist') {
+            $user->therapySpecialist()->update(['user_id' => null]);
+        }
 
         $user->syncRoles([$validated['role']]);
 

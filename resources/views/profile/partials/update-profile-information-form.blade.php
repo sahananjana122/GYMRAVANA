@@ -47,6 +47,27 @@
             @endif
         </div>
 
+        @if ($user->hasRole('member'))
+            <div>
+                <x-input-label for="phone" value="Mobile number (optional)" />
+                <x-text-input id="phone" name="phone" type="tel" class="mt-1 block w-full" :value="old('phone', $user->memberProfile?->phone)" autocomplete="tel" placeholder="+94 77 123 4567" />
+                <p class="mt-1 text-xs text-zinc-500">Used only to prepare a WhatsApp click-to-chat reminder link. GymRAVANA does not send WhatsApp messages automatically.</p>
+                <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/[.025] p-5">
+                <input type="hidden" name="share_measurements_with_trainer" value="0">
+                <label for="share_measurements_with_trainer" class="flex cursor-pointer items-start gap-3">
+                    <input id="share_measurements_with_trainer" name="share_measurements_with_trainer" type="checkbox" value="1" class="mt-1 rounded border-white/20 bg-black text-lime-400 focus:ring-lime-400" @checked(old('share_measurements_with_trainer', $user->memberProfile?->share_measurements_with_trainer))>
+                    <span>
+                        <strong class="block text-sm text-stone-200">Share measurement trends with my assigned trainers</strong>
+                        <span class="mt-1 block text-xs leading-5 text-stone-500">When enabled, trainers connected through an accepted or completed booking can view monthly weight and waist changes. Your raw notes remain private and nothing is published.</span>
+                    </span>
+                </label>
+                <x-input-error class="mt-2" :messages="$errors->get('share_measurements_with_trainer')" />
+            </div>
+        @endif
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 

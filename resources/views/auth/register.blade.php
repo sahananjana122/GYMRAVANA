@@ -25,6 +25,11 @@
             <x-input-error :messages="$errors->get('name')" /><x-input-error :messages="$errors->get('email')" />
 
             <div x-show="type === 'member'" x-cloak>
+                <div class="mb-5">
+                    <x-input-label for="phone" value="Mobile number (optional, enables WhatsApp reminder links)" />
+                    <x-text-input id="phone" class="mt-1 block w-full" name="phone" :value="old('phone')" autocomplete="tel" placeholder="+94 77 123 4567" />
+                    <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                </div>
                 <x-input-label value="Select your membership tier" />
                 <div class="mt-3 grid gap-3 lg:grid-cols-3">@foreach ($tiers as $tier)<label class="cursor-pointer rounded-2xl border border-white/10 p-5 has-[:checked]:border-lime-400 has-[:checked]:bg-lime-400/10"><input type="radio" name="membership_tier_id" value="{{ $tier->id }}" @checked(old('membership_tier_id', request('tier')) == $tier->id) class="text-lime-400 focus:ring-lime-400"><strong class="ml-2">{{ $tier->name }}</strong><span class="mt-3 block text-xl font-black text-lime-300">LKR {{ number_format($tier->price) }}</span><span class="text-xs text-stone-500">per {{ $tier->billing_period }}</span></label>@endforeach</div>
                 <x-input-error :messages="$errors->get('membership_tier_id')" class="mt-2" />

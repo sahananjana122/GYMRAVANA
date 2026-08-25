@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\TherapySpecialist;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -78,5 +79,21 @@ class RoleAccessTest extends TestCase
             ->get(route('trainer.dashboard'))
             ->assertOk()
             ->assertSee('Trainer space');
+    }
+
+    public function test_linked_therapist_is_redirected_to_the_therapist_dashboard(): void
+    {
+        $therapist = User::factory()->create();
+        $therapist->assignRole('therapist');
+        TherapySpecialist::firstOrFail()->update(['user_id' => $therapist->id]);
+
+        $this->actingAs($therapist)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('therapist.dashboard', absolute: false));
+
+        $this->actingAs($therapist)
+            ->get(route('therapist.dashboard'))
+            ->assertOk()
+            ->assertSee('Therapist space');
     }
 }

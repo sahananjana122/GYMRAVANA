@@ -38,6 +38,16 @@ class TrainerProfile extends Model
         return $this->hasMany(TrainerBooking::class);
     }
 
+    public function memberPlans(): HasMany
+    {
+        return $this->hasMany(MemberPlan::class);
+    }
+
+    public function monthlyProgressReviews(): HasMany
+    {
+        return $this->hasMany(MonthlyProgressReview::class);
+    }
+
     public function groupPrograms(): HasMany
     {
         return $this->hasMany(GroupProgram::class);
