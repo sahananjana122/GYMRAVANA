@@ -1,37 +1,73 @@
 <x-app-layout>
     <x-slot name="header">
         <p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Operations</p>
-        <h1 class="mt-2 text-2xl font-black">Admin command centre</h1>
+        <h1 class="mt-2 text-3xl font-black tracking-tight">Admin command centre</h1>
     </x-slot>
 
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Users" :value="$userCount"/>
-        <x-stat-card label="Members" :value="$memberCount"/>
-        <x-stat-card label="Trainers" :value="$trainerCount"/>
-        <x-stat-card label="Therapists" :value="$therapistCount"/>
-        <x-stat-card label="Pending trainer reviews" :value="$pendingTrainerCount"/>
-        <x-stat-card label="Pending therapy leads" :value="$pendingTherapyRequests"/>
-        <x-stat-card label="Pending therapy appointments" :value="$pendingTherapyAppointments"/>
-        <x-stat-card label="Pending orders" :value="$pendingOrders"/>
-        <x-stat-card label="Pending bookings" :value="$pendingBookings"/>
-        <x-stat-card label="Products / Services" :value="$productCount.' / '.$serviceCount"/>
-    </div>
+    <section aria-labelledby="platform-overview-heading">
+        <x-dashboard-section-heading id="platform-overview-heading" title="Platform overview" description="Live account and workload totals from the existing GymRAVANA records." />
+        <div class="mt-6 grid grid-cols-2 border-y border-white/10 sm:grid-cols-4">
+            @foreach (['Users' => $userCount, 'Members' => $memberCount, 'Trainers' => $trainerCount, 'Therapists' => $therapistCount] as $label => $value)
+                <div class="border-white/10 py-5 pr-4 odd:border-r sm:border-r sm:px-5 sm:first:pl-0 sm:last:border-r-0"><p class="text-3xl font-black">{{ $value }}</p><p class="mt-1 text-xs font-bold text-stone-500">{{ $label }}</p></div>
+            @endforeach
+        </div>
+    </section>
 
-    <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        <x-module-card title="Users and roles" description="Review accounts and assign member, trainer, therapist or admin access." :href="route('admin.users.index')" action="Manage users"/>
-        <x-module-card title="Trainer applications" description="Approve or reject trainer profiles before public listing." :href="route('admin.trainers.index')" action="Review applications"/>
-        <x-module-card title="Therapist accounts" description="Create or link secure therapist logins to public specialist profiles." :href="route('admin.therapists.index')" action="Manage therapists"/>
-        <x-module-card title="Membership tiers" description="Edit pricing and manually reassign member tiers." :href="route('admin.memberships.index')" action="Manage tiers"/>
-        <x-module-card title="Services" description="Manage Body and Mind service descriptions and availability." :href="route('admin.services.index')" action="Manage services"/>
-        <x-module-card title="Other events" description="Create, publish, edit and remove parties, workshops and endurance events." :href="route('admin.events.index')" action="Manage events"/>
-        <x-module-card title="Notice Board" description="Publish announcements, achievements, event reminders and consent-controlled monthly client highlights." :href="route('admin.notices.index')" action="Manage notices"/>
-        <x-module-card title="Products" description="Manage categories, prices and stock." :href="route('admin.products.index')" action="Manage products"/>
-        <x-module-card title="Orders" description="Review guest and member orders and update fulfilment." :href="route('admin.orders.index')" action="Manage orders"/>
-        <x-module-card title="Finance & reports" description="Record income and expenses, review financial trends and export a real Excel workbook." :href="route('admin.finance.index')" action="Open finance"/>
-        <x-module-card title="Yoga therapy leads" description="Follow up with public and member therapy enquiries." :href="route('admin.therapy.index')" action="Review requests"/>
-        <x-module-card title="Therapy appointments" description="Confirm exact times, arrival details, preparation notes and reminders." :href="route('admin.therapy-appointments.index')" action="Manage appointments"/>
-        <x-module-card title="Trainer bookings" description="Inspect requests, confirmed times, arrival details and trainer schedules across the platform." :href="route('admin.bookings.index')" action="Manage schedules"/>
-        <x-module-card title="Trainer plans & reviews" description="Inspect the latest member plan versions and private monthly trainer reviews." :href="route('admin.trainer-work.index')" action="Inspect trainer work"/>
-        <x-module-card title="Notification activity" description="Inspect in-app session updates and whether recipients have read them." :href="route('admin.notifications.index')" action="View activity"/>
-    </div>
+    <section class="mt-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div>
+            <x-dashboard-section-heading title="Operations" eyebrow="Existing modules" description="Related tools are grouped into compact lists; every destination uses the current protected admin route." />
+            <div class="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
+                @foreach ([
+                    'People & access' => [
+                        ['Users and roles', 'Review accounts and role access.', route('admin.users.index')],
+                        ['Trainer applications', 'Approve profiles before public listing.', route('admin.trainers.index')],
+                        ['Therapist accounts', 'Link secure accounts to specialists.', route('admin.therapists.index')],
+                        ['Memberships', 'Maintain tiers, assignments and join dates.', route('admin.memberships.index')],
+                    ],
+                    'Schedules & care' => [
+                        ['Trainer bookings', 'Review requests and confirmed schedules.', route('admin.bookings.index')],
+                        ['Trainer plans & reviews', 'Inspect plan versions and monthly reviews.', route('admin.trainer-work.index')],
+                        ['Yoga therapy leads', 'Follow up with submitted enquiries.', route('admin.therapy.index')],
+                        ['Therapy appointments', 'Confirm times, arrival and reminders.', route('admin.therapy-appointments.index')],
+                    ],
+                    'Catalogue & sales' => [
+                        ['Services', 'Maintain Body and Mind programmes.', route('admin.services.index')],
+                        ['Products', 'Maintain catalogue prices and stock.', route('admin.products.index')],
+                        ['Orders', 'Review and update fulfilment.', route('admin.orders.index')],
+                        ['Finance & reports', 'Record transactions and export reports.', route('admin.finance.index')],
+                    ],
+                    'Publishing' => [
+                        ['Notice Board', 'Publish announcements and highlights.', route('admin.notices.index')],
+                        ['Other events', 'Maintain workshops and events.', route('admin.events.index')],
+                        ['Notification activity', 'Inspect in-app delivery and read state.', route('admin.notifications.index')],
+                    ],
+                ] as $group => $links)
+                    <div>
+                        <h3 class="border-b border-white/10 pb-3 text-xs font-black uppercase tracking-[0.17em] text-stone-500">{{ $group }}</h3>
+                        <div class="divide-y divide-white/10">
+                            @foreach ($links as [$title, $description, $href])
+                                <a href="{{ $href }}" class="group grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-4 focus:outline-none focus-visible:text-lime-300"><span><strong class="block text-sm group-hover:text-lime-300">{{ $title }}</strong><small class="mt-1 block leading-5 text-stone-500">{{ $description }}</small></span><span class="self-center text-stone-600 transition group-hover:translate-x-1 group-hover:text-lime-300" aria-hidden="true">→</span></a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <aside class="border-l border-white/10 pl-0 xl:pl-8">
+            <h2 class="text-xs font-black uppercase tracking-[0.17em] text-amber-300">Needs attention</h2>
+            <div class="mt-4 divide-y divide-white/10 border-y border-white/10">
+                @foreach ([
+                    ['Trainer reviews', $pendingTrainerCount, route('admin.trainers.index')],
+                    ['Therapy leads', $pendingTherapyRequests, route('admin.therapy.index')],
+                    ['Therapy appointments', $pendingTherapyAppointments, route('admin.therapy-appointments.index')],
+                    ['Trainer bookings', $pendingBookings, route('admin.bookings.index')],
+                    ['Orders', $pendingOrders, route('admin.orders.index')],
+                ] as [$label, $count, $href])
+                    <a href="{{ $href }}" class="flex items-center justify-between gap-4 py-4 text-sm font-bold hover:text-amber-300"><span>{{ $label }}</span><strong class="text-xl text-white">{{ $count }}</strong></a>
+                @endforeach
+            </div>
+            <p class="mt-7 text-xs leading-5 text-stone-600">Catalogue: {{ $productCount }} products and {{ $serviceCount }} services.</p>
+        </aside>
+    </section>
 </x-app-layout>

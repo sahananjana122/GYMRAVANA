@@ -23,6 +23,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupProgramController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Member\PortalController as MemberPortalController;
+use App\Http\Controllers\Member\ProgressPhotoController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\NoticeBoardController;
 use App\Http\Controllers\NotificationController;
@@ -94,6 +96,11 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('member')->name('member.')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'member'])->name('dashboard');
+            Route::get('/progress', [MemberPortalController::class, 'progress'])->name('progress.index');
+            Route::get('/library', [MemberPortalController::class, 'library'])->name('library.index');
+            Route::get('/meal-plan', [MemberPortalController::class, 'mealPlan'])->name('meal-plan.index');
+            Route::get('/schedules', [MemberPortalController::class, 'schedules'])->name('schedules.index');
+            Route::patch('/progress-photos', [ProgressPhotoController::class, 'update'])->name('progress-photos.update');
             Route::get('/workouts', [WorkoutController::class, 'index'])->name('workouts.index');
             Route::post('/workouts/{workoutPlan}/complete', [WorkoutController::class, 'complete'])->name('workouts.complete');
             Route::get('/measurements', [BodyMeasurementController::class, 'index'])->name('measurements.index');

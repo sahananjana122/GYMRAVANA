@@ -65,6 +65,7 @@ class RegisteredUserController extends Controller
                 MemberProfile::create([
                     'user_id' => $user->id,
                     'membership_tier_id' => $validated['membership_tier_id'],
+                    'joined_at' => today(),
                     'phone' => $validated['phone'] ?? null,
                     'status' => 'active',
                 ]);

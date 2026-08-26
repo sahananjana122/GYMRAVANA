@@ -44,6 +44,7 @@ class ProfileController extends Controller
                 ['user_id' => $request->user()->id],
                 [
                     'phone' => $phone,
+                    'joined_at' => $request->user()->memberProfile?->joined_at ?? today(),
                     'share_measurements_with_trainer' => $shareMeasurements,
                     'status' => $request->user()->memberProfile?->status ?? 'active',
                 ],

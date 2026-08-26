@@ -1,135 +1,112 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Member dashboard</p>
-                <h1 class="mt-2 text-2xl font-black">Welcome back, {{ $user->name }}</h1>
-                <p class="mt-2 text-sm text-stone-400">Your schedule, assigned plans, progress and learning resources in one place.</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="tag text-lime-300">{{ $user->memberProfile?->membershipTier?->name ?? 'Membership not assigned' }}</span>
-                <span class="tag">{{ number_format($totalPoints) }} total points</span>
-            </div>
-        </div>
+        <h1 class="text-3xl font-black tracking-tight sm:text-4xl">Welcome to My Gym</h1>
     </x-slot>
 
-    <section aria-labelledby="schedule-plans-heading">
-        <div class="flex items-start gap-4">
-            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-lime-400 font-black text-black">01</span>
-            <div><p class="text-xs font-black uppercase tracking-[0.18em] text-lime-300">Your week</p><h2 id="schedule-plans-heading" class="mt-1 text-3xl font-black">Schedule & Plans</h2><p class="mt-2 max-w-3xl text-stone-400">View confirmed sessions and plans assigned to your account. Only your trainer can change trainer-authored plans.</p></div>
+    <section aria-labelledby="member-overview-heading">
+        <div class="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <x-dashboard-section-heading title="Schedule & Plans" eyebrow="Your month" description="A clear view of your training activity, confirmed sessions and current trainer-assigned plans." />
+            <div class="flex flex-wrap gap-2 text-xs font-bold text-stone-400"><span>{{ $user->memberProfile?->membershipTier?->name ?? 'Membership not assigned' }}</span><span aria-hidden="true">·</span><span>{{ number_format($totalPoints) }} total points</span></div>
         </div>
 
-        <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <x-stat-card label="Workouts this month" :value="$monthlyProgress['workouts']"/>
-            <x-stat-card label="Mind activities" :value="$monthlyProgress['wellness']"/>
-            <x-stat-card label="Trainer sessions" :value="$monthlyProgress['trainer_sessions']"/>
-            <x-stat-card label="Therapy sessions" :value="$monthlyProgress['therapy_sessions']"/>
-            <x-stat-card label="Active days" :value="$monthlyProgress['active_days']"/>
-            <x-stat-card label="Points this month" :value="$monthlyProgress['points']"/>
+        <div class="grid grid-cols-2 border-b border-white/10 sm:grid-cols-3 xl:grid-cols-6" aria-label="{{ $monthlyProgress['label'] }} summary">
+            @foreach ([
+                'Workouts this month' => $monthlyProgress['workouts'],
+                'Mind activities' => $monthlyProgress['wellness'],
+                'Trainer sessions' => $monthlyProgress['trainer_sessions'],
+                'Therapy sessions' => $monthlyProgress['therapy_sessions'],
+                'Active days' => $monthlyProgress['active_days'],
+                'Points this month' => $monthlyProgress['points'],
+            ] as $label => $value)
+                <div class="border-white/10 py-5 pr-3 odd:border-r sm:border-r sm:px-4 sm:first:pl-0 sm:last:border-r-0">
+                    <p class="text-2xl font-black">{{ $value }}</p>
+                    <p class="mt-1 text-xs leading-5 text-stone-500">{{ $label }}</p>
+                </div>
+            @endforeach
         </div>
 
-        <div class="mt-7 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
-            <div class="grid gap-6 md:grid-cols-2">
-                <article class="rounded-[2rem] border border-lime-400/20 bg-lime-400/[.04] p-5 sm:p-7">
-                    <div class="flex items-center justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[0.18em] text-lime-300">Personal training</p><h3 class="mt-2 text-xl font-black">Upcoming sessions</h3></div><span class="tag">{{ $upcomingTrainerSessions->count() }}</span></div>
-                    <div class="mt-5 space-y-3">
-                        @forelse ($upcomingTrainerSessions as $session)
-                            <div class="rounded-2xl bg-black/20 p-4">
-                                <div class="flex items-start justify-between gap-3"><strong>{{ $session->trainerProfile->user->name }}</strong><span class="text-sm font-black text-lime-300">{{ $session->confirmed_start_at->format('d M Y, H:i') }}</span></div>
-                                <p class="mt-2 text-sm text-stone-400">{{ $session->program_type }} · {{ $session->duration_minutes }} minutes</p>
-                                <p class="mt-1 text-xs text-stone-500">Please arrive by {{ $session->required_arrival_at->format('H:i') }}</p>
-                                @if ($session->preparation_instructions)<p class="mt-3 border-t border-white/10 pt-3 text-xs leading-5 text-stone-400">{{ $session->preparation_instructions }}</p>@endif
-                                @if ($session->trainer_message)<p class="mt-3 rounded-xl bg-white/[.035] p-3 text-xs leading-5 text-stone-300"><strong>Trainer update:</strong> {{ $session->trainer_message }}</p>@endif
-                            </div>
-                        @empty
-                            <p class="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-stone-500">No upcoming trainer sessions are confirmed.</p>
-                        @endforelse
-                    </div>
-                </article>
-
-                <article class="rounded-[2rem] border border-sky-400/20 bg-sky-400/[.035] p-5 sm:p-7">
-                    <div class="flex items-center justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[0.18em] text-sky-300">Therapy</p><h3 class="mt-2 text-xl font-black">Upcoming appointments</h3></div><span class="tag">{{ $upcomingTherapySessions->count() }}</span></div>
-                    <div class="mt-5 space-y-3">
-                        @forelse ($upcomingTherapySessions as $session)
-                            <div class="rounded-2xl bg-black/20 p-4">
-                                <div class="flex items-start justify-between gap-3"><strong>{{ $session->specialist->name }}</strong><span class="text-sm font-black text-sky-300">{{ $session->confirmed_start_at->format('d M Y, H:i') }}</span></div>
-                                <p class="mt-2 text-sm text-stone-400">{{ $session->treatment->name }} · {{ $session->duration_minutes }} minutes</p>
-                                <p class="mt-1 text-xs text-stone-500">Please arrive by {{ $session->required_arrival_at->format('H:i') }}</p>
-                                <a href="{{ route('therapy-appointments.success', $session) }}" class="mt-3 inline-flex text-xs font-black text-sky-300">View appointment →</a>
-                            </div>
-                        @empty
-                            <p class="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-stone-500">No upcoming therapy appointments are confirmed.</p>
-                        @endforelse
-                    </div>
-                </article>
+        <div class="grid gap-10 py-9 xl:grid-cols-2">
+            <div>
+                <div class="flex items-center justify-between border-b border-white/10 pb-3"><h3 class="text-lg font-black">Upcoming trainer sessions</h3><a href="{{ route('member.schedules.index') }}" class="text-xs font-black text-lime-300">All schedules →</a></div>
+                <div class="divide-y divide-white/10">
+                    @forelse ($upcomingTrainerSessions->take(3) as $session)
+                        <div class="py-4"><div class="flex flex-col gap-1 sm:flex-row sm:justify-between"><strong>{{ $session->trainerProfile->user->name }}</strong><span class="text-sm font-black text-lime-300">{{ $session->confirmed_start_at->format('d M Y, H:i') }}</span></div><p class="mt-2 text-sm text-stone-400">{{ $session->program_type }} · {{ $session->duration_minutes }} minutes</p><p class="mt-1 text-xs text-stone-500">Please arrive by {{ $session->required_arrival_at->format('H:i') }}</p>@if ($session->preparation_instructions)<p class="mt-2 text-xs leading-5 text-stone-500">{{ $session->preparation_instructions }}</p>@endif @if ($session->trainer_message)<p class="mt-2 text-xs leading-5 text-stone-500">Trainer update: {{ $session->trainer_message }}</p>@endif</div>
+                    @empty
+                        <p class="py-5 text-sm text-stone-500">No upcoming trainer sessions are confirmed.</p>
+                    @endforelse
+                </div>
             </div>
 
-            <article class="rounded-[2rem] border border-white/10 bg-[#111411] p-5 sm:p-7">
-                <p class="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Monthly progress</p>
-                <h3 class="mt-2 text-xl font-black">{{ $monthlyProgress['label'] }} summary</h3>
-                <div class="mt-5 rounded-2xl bg-black/20 p-5">
-                    <div class="flex items-end justify-between gap-4"><div><p class="text-sm text-stone-500">Activity consistency</p><p class="mt-1 text-3xl font-black">{{ $monthlyProgress['active_days'] }} active days</p></div><span class="text-sm font-black text-lime-300">+{{ $monthlyProgress['points'] }} pts</span></div>
-                    <div class="mt-5 h-2 rounded-full bg-white/10"><div class="h-2 rounded-full bg-lime-400" style="width: {{ min(100, round(($monthlyProgress['active_days'] / max(1, now()->daysInMonth)) * 100)) }}%"></div></div>
+            <div>
+                <div class="flex items-center justify-between border-b border-white/10 pb-3"><h3 class="text-lg font-black">Upcoming therapy</h3><a href="{{ route('member.schedules.index') }}" class="text-xs font-black text-sky-300">All schedules →</a></div>
+                <div class="divide-y divide-white/10">
+                    @forelse ($upcomingTherapySessions->take(3) as $session)
+                        <div class="py-4"><div class="flex flex-col gap-1 sm:flex-row sm:justify-between"><strong>{{ $session->specialist->name }}</strong><span class="text-sm font-black text-sky-300">{{ $session->confirmed_start_at->format('d M Y, H:i') }}</span></div><p class="mt-2 text-sm text-stone-400">{{ $session->treatment->name }} · {{ $session->duration_minutes }} minutes · arrive by {{ $session->required_arrival_at->format('H:i') }}</p></div>
+                    @empty
+                        <p class="py-5 text-sm text-stone-500">No upcoming therapy appointments are confirmed.</p>
+                    @endforelse
                 </div>
-                <div class="mt-4 rounded-2xl border border-white/5 p-4 text-sm">
-                    <p class="text-xs font-black uppercase tracking-wider text-stone-500">Body measurement trend</p>
-                    @if ($monthlyProgress['weight_change'] !== null)
-                        <p class="mt-2 font-black {{ $monthlyProgress['weight_change'] > 0 ? 'text-amber-300' : 'text-lime-300' }}">{{ $monthlyProgress['weight_change'] > 0 ? '+' : '' }}{{ number_format($monthlyProgress['weight_change'], 2) }} kg this month</p>
-                        <p class="mt-1 text-xs text-stone-500">A measurement change is progress data, not a medical assessment.</p>
-                    @else
-                        <p class="mt-2 text-stone-500">Record at least two measurements this month to see a private trend.</p>
-                    @endif
-                </div>
-                <a href="{{ route('member.measurements.index') }}" class="mt-5 inline-flex text-sm font-black text-lime-300">Open my private progress →</a>
-            </article>
+            </div>
         </div>
 
-        <div class="mt-7 grid gap-6 xl:grid-cols-2">
-            <x-member-plan-card :plan="$currentWorkoutPlan" type="workout"/>
-            <x-member-plan-card :plan="$currentMealPlan" type="meal"/>
+        <div class="grid gap-6 xl:grid-cols-2">
+            <x-member-plan-card :plan="$currentWorkoutPlan" type="workout" />
+            <x-member-plan-card :plan="$currentMealPlan" type="meal" />
         </div>
 
-        <article class="mt-7 rounded-[2rem] border border-white/10 p-5 sm:p-7">
-            <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Read-only history</p><h3 class="mt-2 text-xl font-black">Recent plan changes</h3></div><p class="text-xs text-stone-500">Draft plans are never shown to members.</p></div>
-            <div class="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-8 grid gap-6 border-y border-white/10 py-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[0.16em] text-stone-500">{{ $monthlyProgress['label'] }} progress</p>
+                <p class="mt-2 text-xl font-black">{{ $monthlyProgress['active_days'] }} active days <span class="text-lime-300">+{{ $monthlyProgress['points'] }} pts</span></p>
+                @if ($monthlyProgress['weight_change'] !== null)<p class="mt-2 text-sm text-stone-400">{{ $monthlyProgress['weight_change'] > 0 ? '+' : '' }}{{ number_format($monthlyProgress['weight_change'], 2) }} kg this month. This is private progress data, not a medical assessment.</p>@else<p class="mt-2 text-sm text-stone-500">Record at least two measurements this month to see a private weight trend.</p>@endif
+            </div>
+            <a href="{{ route('member.progress.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-lime-300/40 px-5 text-sm font-black text-lime-300">Open Monthly Tracking Sheet →</a>
+        </div>
+
+        <div class="mt-7">
+            <div class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-black uppercase tracking-[0.16em] text-stone-500">Read-only history</p><h3 class="mt-1 text-lg font-black">Recent plan changes</h3></div><p class="text-xs text-stone-500">Draft plans are never shown to members.</p></div>
+            <div class="mt-3 divide-y divide-white/10 border-y border-white/10">
                 @forelse ($recentPlanChanges as $plan)
-                    <div class="rounded-2xl bg-white/[.035] p-4"><div class="flex items-start justify-between gap-3"><strong>{{ $plan->title }}</strong><span class="tag capitalize">{{ $plan->type }}</span></div><p class="mt-2 text-sm text-stone-400">{{ $plan->trainerProfile?->user?->name ?? 'GymRAVANA team' }}</p><p class="mt-1 text-xs text-stone-500">Updated {{ $plan->updated_at->format('d M Y, H:i') }} · Version {{ $plan->version }}</p></div>
+                    <div class="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between"><div><strong>{{ $plan->title }}</strong><p class="mt-1 text-xs text-stone-500">{{ $plan->trainerProfile?->user?->name ?? 'GymRAVANA team' }} · {{ str($plan->type)->title() }}</p></div><p class="text-xs text-stone-500">Updated {{ $plan->updated_at->format('d M Y, H:i') }} · Version {{ $plan->version }}</p></div>
                 @empty
-                    <p class="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-stone-500 md:col-span-2 lg:col-span-3">No trainer-authored plan changes are available yet.</p>
+                    <p class="py-5 text-sm text-stone-500">No trainer-authored plan changes are available yet.</p>
                 @endforelse
             </div>
-        </article>
-    </section>
-
-    <section aria-labelledby="book-sessions-heading" class="mt-16 border-t border-white/10 pt-12">
-        <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white font-black text-black">02</span><div><p class="text-xs font-black uppercase tracking-[0.18em] text-stone-500">Choose support</p><h2 id="book-sessions-heading" class="mt-1 text-3xl font-black">Book Sessions</h2><p class="mt-2 text-stone-400">Continue through GymRAVANA's existing booking flows—your request is not confirmed until a provider schedules it.</p></div></div>
-        <div class="mt-7 grid gap-6 md:grid-cols-2">
-            <article class="rounded-[2rem] border border-lime-400/20 bg-gradient-to-br from-lime-400/10 to-transparent p-7 sm:p-9"><p class="text-xs font-black uppercase tracking-[0.18em] text-lime-300">Personal Trainer</p><h3 class="mt-3 text-2xl font-black">Find the right trainer</h3><p class="mt-3 max-w-xl leading-7 text-stone-400">Browse approved trainers, compare specialties and request a preferred session time.</p><a href="{{ route('trainers.index') }}" class="mt-7 inline-flex rounded-full bg-lime-400 px-6 py-3 font-black text-black">Browse trainers →</a></article>
-            <article class="rounded-[2rem] border border-sky-400/20 bg-gradient-to-br from-sky-400/10 to-transparent p-7 sm:p-9"><p class="text-xs font-black uppercase tracking-[0.18em] text-sky-300">Therapy</p><h3 class="mt-3 text-2xl font-black">Request guided support</h3><p class="mt-3 max-w-xl leading-7 text-stone-400">Use the existing educational therapy finder to select a suitable pathway and specialist.</p><div class="mt-7 flex flex-wrap gap-3"><a href="{{ route('therapy-finder.index') }}" class="inline-flex rounded-full bg-sky-300 px-6 py-3 font-black text-[#10231d]">Find therapy →</a><a href="{{ route('yoga-therapy.index') }}" class="inline-flex rounded-full border border-white/15 px-6 py-3 font-black">Explore therapy</a></div></article>
         </div>
     </section>
 
-    <section id="library" aria-labelledby="library-heading" class="mt-16 scroll-mt-28 border-t border-white/10 pt-12">
-        <div class="flex items-start gap-4"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-sky-300 font-black text-[#10231d]">03</span><div><p class="text-xs font-black uppercase tracking-[0.18em] text-sky-300">Learn and recover</p><h2 id="library-heading" class="mt-1 text-3xl font-black">Library & Movies</h2><p class="mt-2 text-stone-400">Open the gym's external reading and movie collection, then return here for your private fitness tools.</p></div></div>
+    <section aria-labelledby="book-sessions-heading" class="mt-14 border-t border-white/10 pt-10">
+        <x-dashboard-section-heading id="book-sessions-heading" title="Book Sessions" eyebrow="Choose support" description="Use GymRAVANA's existing booking flows. A request is not confirmed until a provider schedules it." />
+        <div class="mt-6 divide-y divide-white/10 border-y border-white/10">
+            <div class="grid gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"><div><h3 class="font-black">Personal training</h3><p class="mt-1 text-sm text-stone-400">Browse approved trainers, compare specialties and request a preferred time.</p></div><a href="{{ route('trainers.index') }}" class="text-sm font-black text-lime-300">Browse trainers →</a></div>
+            <div class="grid gap-4 py-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"><div><h3 class="font-black">Therapy and mindful support</h3><p class="mt-1 text-sm text-stone-400">Use the educational therapy finder to request a suitable pathway and specialist.</p></div><a href="{{ route('therapy-finder.index') }}" class="text-sm font-black text-sky-300">Find therapy →</a></div>
+        </div>
+    </section>
 
-        <div class="mt-7 grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
-            <article class="rounded-[2rem] border border-sky-400/20 bg-sky-400/[.04] p-7 sm:p-9">
-                <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-300/25 text-2xl text-sky-300" aria-hidden="true">↗</div>
-                <p class="mt-6 text-xs font-black uppercase tracking-[0.18em] text-sky-300">External Google Drive</p>
-                <h3 class="mt-2 text-2xl font-black">{{ $library['label'] }}</h3>
-                <p class="mt-3 leading-7 text-stone-400">This resource opens outside GymRAVANA. Google Drive permissions still apply, and the application cannot bypass an access request or private-file restriction.</p>
-                @if ($library['url'])
-                    <a href="{{ $library['url'] }}" target="_blank" rel="noopener noreferrer external" class="mt-7 inline-flex rounded-full bg-sky-300 px-6 py-3 font-black text-[#10231d]">Open external library ↗</a>
-                @else
-                    <div class="mt-7 rounded-2xl border border-dashed border-sky-300/20 p-5 text-sm text-stone-400"><strong class="text-stone-200">Library link not configured.</strong><span class="mt-1 block">An administrator can add the approved Google Drive URL to the application environment.</span></div>
-                @endif
-            </article>
+    <section id="library" aria-labelledby="library-heading" class="mt-14 border-t border-white/10 pt-10">
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <x-dashboard-section-heading id="library-heading" title="Library & Movies" eyebrow="Learn and recover" :description="$library['url'] ? 'Open the centrally configured books and movies collection in Google Drive.' : 'The external collection is ready for an administrator to configure.'" />
+            @if ($library['url'])
+                <div><a href="{{ $library['url'] }}" target="_blank" rel="noopener noreferrer external" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-sky-300 px-5 text-sm font-black text-[#10231d]">Open {{ $library['label'] }} ↗</a><p class="mt-2 text-xs text-stone-500">Google Drive permissions still apply.</p></div>
+            @else
+                <p class="border-l-2 border-sky-300 pl-4 text-sm text-stone-400"><strong class="text-white">Library link not configured.</strong><span class="mt-1 block">Google Drive permissions still apply once connected.</span></p>
+            @endif
+        </div>
+        <div class="mt-6 flex flex-wrap gap-x-6 gap-y-3 border-y border-white/10 py-5 text-sm font-bold"><a href="{{ route('member.library.index') }}" class="text-sky-300">Library details →</a><a href="{{ route('member.workouts.index') }}" class="hover:text-lime-300">{{ $availableWorkoutCount }} workouts →</a><a href="{{ route('member.wellness.index') }}" class="hover:text-lime-300">Mind activities →</a></div>
+    </section>
 
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                <x-module-card title="Workout library" :description="$availableWorkoutCount.' active workouts you can complete independently.'" :href="route('member.workouts.index')" action="Open workouts"/>
-                <x-module-card title="Mind activities" description="Use breathing, meditation and recovery activities from your private member area." :href="route('member.wellness.index')" action="Open activities"/>
-                <x-module-card title="My services" description="Continue the Body and Mind service paths already started on your account." :href="route('services.index')" action="Browse services"/>
-            </div>
+    <section id="progress-photos" aria-labelledby="progress-photos-heading" class="mt-14 border-t border-white/10 pt-10">
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,.7fr)]">
+            <x-dashboard-section-heading id="progress-photos-heading" title="Before & after photos" eyebrow="Private member identity" description="Upload one or both progress photos. They appear only inside your authenticated dashboard identity area and are stored through Laravel's public storage disk." />
+            <form method="POST" action="{{ route('member.progress-photos.update') }}" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                @method('PATCH')
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div><label for="before-photo" class="form-label">Before photo</label><input id="before-photo" name="before_photo" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-stone-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:font-bold file:text-white"></div>
+                    <div><label for="after-photo" class="form-label">After photo</label><input id="after-photo" name="after_photo" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-stone-400 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-2 file:font-bold file:text-white"></div>
+                </div>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs text-stone-500">JPG, PNG or WebP. Maximum 5 MB each.</p><button class="min-h-11 rounded-xl bg-lime-300 px-5 text-sm font-black text-[#10201a]">Save progress photos</button></div>
+            </form>
         </div>
     </section>
 </x-app-layout>

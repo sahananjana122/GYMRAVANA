@@ -39,7 +39,12 @@ class MembershipTierController extends Controller
     public function assign(Request $request, User $user): RedirectResponse
     {
         abort_unless($user->hasRole('member'), 422);
-        $validated = $request->validate(['membership_tier_id' => ['required', 'exists:membership_tiers,id']]);
+        $validated = $request->validate([
+            'membership_tier_id' => ['required', 'exists:membership_tiers,id'],
+            'joined_at' => ['nullable', 'date', 'before_or_equal:today'],
+        ]);
+        $profile = $user->memberProfile;
+        $validated['joined_at'] ??= $profile?->joined_at ?? today();
         MemberProfile::updateOrCreate(['user_id' => $user->id], $validated + ['status' => 'active']);
 
         return back()->with('status', 'Member tier reassigned.');

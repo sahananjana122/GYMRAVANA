@@ -7,11 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MemberProfile extends Model
 {
-    protected $fillable = ['user_id', 'membership_tier_id', 'phone', 'share_measurements_with_trainer', 'status'];
+    protected $fillable = [
+        'user_id',
+        'membership_tier_id',
+        'joined_at',
+        'before_photo_path',
+        'after_photo_path',
+        'phone',
+        'share_measurements_with_trainer',
+        'status',
+    ];
 
     protected function casts(): array
     {
         return [
+            'joined_at' => 'date',
             'share_measurements_with_trainer' => 'boolean',
         ];
     }

@@ -40,6 +40,13 @@ class UserController extends Controller
 
         $user->syncRoles([$validated['role']]);
 
+        if ($validated['role'] === 'member') {
+            $user->memberProfile()->firstOrCreate(
+                ['user_id' => $user->id],
+                ['joined_at' => today(), 'status' => 'active'],
+            );
+        }
+
         return back()->with('status', "{$user->name}'s role was updated.");
     }
 }

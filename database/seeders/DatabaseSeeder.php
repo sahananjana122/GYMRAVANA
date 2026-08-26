@@ -110,7 +110,7 @@ class DatabaseSeeder extends Seeder
         foreach (User::role('member')->get() as $member) {
             MemberProfile::firstOrCreate(
                 ['user_id' => $member->id],
-                ['membership_tier_id' => $tiers->firstWhere('is_featured', true)?->id, 'status' => 'active'],
+                ['membership_tier_id' => $tiers->firstWhere('is_featured', true)?->id, 'joined_at' => today(), 'status' => 'active'],
             );
         }
 

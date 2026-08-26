@@ -4,123 +4,61 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'GymRaavana') }} Dashboard</title>
+    <title>{{ config('app.name', 'GymRavana') }} Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-[#0b0d0c] font-sans text-stone-100 antialiased">
-@php
-    $dashboardRoute = auth()->user()->dashboardRouteName();
-    $unreadNotificationCount = auth()->user()->unreadNotifications()->count();
-@endphp
-<nav x-data="{ open: false }" class="sticky top-0 z-50 border-b border-white/10 bg-[#0b0d0c]/95 backdrop-blur-xl">
-    <div class="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
-        <a href="{{ route($dashboardRoute) }}" class="flex shrink-0 items-center gap-3">
-            <span class="grid h-10 w-10 place-items-center rounded-2xl bg-lime-400 text-sm font-black text-black">GR</span>
-            <span class="hidden font-black uppercase tracking-[0.16em] sm:inline">Gym<span class="text-lime-400">Raavana</span></span>
-        </a>
+<body class="min-h-screen overflow-x-hidden bg-[#0c0f0e] font-sans text-stone-100 antialiased">
+<div x-data="{ dashboardMenuOpen: false }" @keydown.escape.window="dashboardMenuOpen = false" class="min-h-screen lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+    <aside class="sticky top-0 hidden h-screen border-r border-white/10 lg:block">
+        <x-dashboard-sidebar :items="$navigationItems" :role-label="$roleLabel" />
+    </aside>
 
-        <div class="hidden flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm font-semibold text-stone-300 lg:flex">
-            <a href="{{ route('home') }}" class="hover:text-lime-300">Public site</a>
-            <a href="{{ route($dashboardRoute) }}" class="hover:text-lime-300">Dashboard</a>
-
-            @role('member')
-                <a href="{{ route('services.index') }}" class="hover:text-lime-300">Services</a>
-                <a href="{{ route('trainers.index') }}" class="hover:text-lime-300">Trainers</a>
-                <a href="{{ route('member.measurements.index') }}" class="hover:text-lime-300">Progress</a>
-                <a href="{{ route('member.dashboard').'#library' }}" class="hover:text-lime-300">Library</a>
-            @endrole
-
-            @role('trainer')
-                <a href="{{ route('trainer.plans.index') }}" class="hover:text-lime-300">Plans</a>
-                <a href="{{ route('trainer.bookings.index') }}" class="hover:text-lime-300">Bookings</a>
-                <a href="{{ route('trainer.library.index') }}" class="hover:text-lime-300">Library</a>
-                <a href="{{ route('trainer.tracker.index') }}" class="hover:text-lime-300">Tracker</a>
-            @endrole
-
-            @role('therapist')
-                <a href="{{ route('therapist.appointments.index') }}" class="hover:text-lime-300">Appointments</a>
-            @endrole
-
-            @role('admin')
-                <a href="{{ route('admin.users.index') }}" class="hover:text-lime-300">Users</a>
-                <a href="{{ route('admin.therapists.index') }}" class="hover:text-lime-300">Therapists</a>
-                <a href="{{ route('admin.bookings.index') }}" class="hover:text-lime-300">Schedules</a>
-                <a href="{{ route('admin.trainer-work.index') }}" class="hover:text-lime-300">Trainer work</a>
-                <a href="{{ route('admin.finance.index') }}" class="hover:text-lime-300">Finance</a>
-            @endrole
-
-            <a href="{{ route('notifications.index') }}" class="relative rounded-full border border-white/10 px-3 py-2 hover:border-lime-400 hover:text-lime-300">
-                Alerts
-                @if ($unreadNotificationCount)
-                    <span class="ml-1 rounded-full bg-lime-400 px-1.5 py-0.5 text-[10px] font-black text-black">{{ $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount }}</span>
-                @endif
-            </a>
-            <a href="{{ route('profile.edit') }}" class="hover:text-lime-300">Account</a>
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs uppercase">{{ auth()->user()->getRoleNames()->first() ?? 'unassigned' }}</span>
-            <form method="POST" action="{{ route('logout') }}">@csrf<button class="rounded-full border border-white/15 px-4 py-2 hover:border-lime-400">Log out</button></form>
-        </div>
-
-        <button type="button" @click="open = !open" class="rounded-xl border border-white/15 px-3 py-2 text-sm lg:hidden" aria-label="Toggle dashboard menu">Menu</button>
+    <div x-show="dashboardMenuOpen" x-cloak class="fixed inset-0 z-50 lg:hidden" aria-modal="true" role="dialog" aria-label="Dashboard menu">
+        <button type="button" class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="dashboardMenuOpen = false" aria-label="Close dashboard menu"></button>
+        <aside x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="relative h-full w-[min(19rem,88vw)] border-r border-white/10 shadow-2xl">
+            <button type="button" @click="dashboardMenuOpen = false" class="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-[#101411] text-xl text-stone-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-300" aria-label="Close dashboard menu">×</button>
+            <x-dashboard-sidebar :items="$navigationItems" :role-label="$roleLabel" />
+        </aside>
     </div>
 
-    <div x-show="open" x-cloak class="border-t border-white/10 px-5 py-5 lg:hidden">
-        <div class="grid gap-1 text-sm font-semibold">
-            <a href="{{ route('home') }}" class="rounded-xl px-3 py-3">Public site</a>
-            <a href="{{ route('notices.index') }}" class="rounded-xl px-3 py-3">Notice Board</a>
-            <a href="{{ route($dashboardRoute) }}" class="rounded-xl px-3 py-3">Dashboard</a>
-
-            @role('member')
-                <a href="{{ route('services.index') }}" class="rounded-xl px-3 py-3">Services</a>
-                <a href="{{ route('trainers.index') }}" class="rounded-xl px-3 py-3">Trainers</a>
-                <a href="{{ route('member.measurements.index') }}" class="rounded-xl px-3 py-3">Progress</a>
-                <a href="{{ route('member.dashboard').'#library' }}" class="rounded-xl px-3 py-3">Library & movies</a>
-            @endrole
-
-            @role('trainer')
-                <a href="{{ route('trainer.plans.index') }}" class="rounded-xl px-3 py-3">Client plans</a>
-                <a href="{{ route('trainer.bookings.index') }}" class="rounded-xl px-3 py-3">Bookings</a>
-                <a href="{{ route('trainer.library.index') }}" class="rounded-xl px-3 py-3">Library</a>
-                <a href="{{ route('trainer.tracker.index') }}" class="rounded-xl px-3 py-3">Monthly tracker</a>
-                <a href="{{ route('trainer.profile.edit') }}" class="rounded-xl px-3 py-3">Trainer profile</a>
-            @endrole
-
-            @role('therapist')
-                <a href="{{ route('therapist.appointments.index') }}" class="rounded-xl px-3 py-3">Therapy appointments</a>
-            @endrole
-
-            @role('admin')
-                <a href="{{ route('admin.users.index') }}" class="rounded-xl px-3 py-3">Users and roles</a>
-                <a href="{{ route('admin.trainers.index') }}" class="rounded-xl px-3 py-3">Trainer applications</a>
-                <a href="{{ route('admin.therapists.index') }}" class="rounded-xl px-3 py-3">Therapist accounts</a>
-                <a href="{{ route('admin.memberships.index') }}" class="rounded-xl px-3 py-3">Memberships</a>
-                <a href="{{ route('admin.services.index') }}" class="rounded-xl px-3 py-3">Services</a>
-                <a href="{{ route('admin.notices.index') }}" class="rounded-xl px-3 py-3">Notices</a>
-                <a href="{{ route('admin.events.index') }}" class="rounded-xl px-3 py-3">Events</a>
-                <a href="{{ route('admin.products.index') }}" class="rounded-xl px-3 py-3">Products</a>
-                <a href="{{ route('admin.orders.index') }}" class="rounded-xl px-3 py-3">Orders</a>
-                <a href="{{ route('admin.bookings.index') }}" class="rounded-xl px-3 py-3">Trainer schedules</a>
-                <a href="{{ route('admin.trainer-work.index') }}" class="rounded-xl px-3 py-3">Trainer plans & reviews</a>
-                <a href="{{ route('admin.therapy-appointments.index') }}" class="rounded-xl px-3 py-3">Therapy schedules</a>
-                <a href="{{ route('admin.notifications.index') }}" class="rounded-xl px-3 py-3">Notification activity</a>
-                <a href="{{ route('admin.finance.index') }}" class="rounded-xl px-3 py-3">Finance & reports</a>
-            @endrole
-
-            <a href="{{ route('notifications.index') }}" class="rounded-xl px-3 py-3">Alerts{{ $unreadNotificationCount ? ' ('.$unreadNotificationCount.')' : '' }}</a>
-            <a href="{{ route('profile.edit') }}" class="rounded-xl px-3 py-3">Account</a>
-            <form method="POST" action="{{ route('logout') }}">@csrf<button class="px-3 py-3 text-rose-300">Log out</button></form>
+    <div class="min-w-0">
+        <div class="flex min-h-16 items-center justify-between border-b border-white/10 bg-[#0c0f0e]/95 px-5 backdrop-blur lg:hidden">
+            <button type="button" @click="dashboardMenuOpen = true" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/15 px-4 text-sm font-black focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-300" aria-label="Open dashboard menu" :aria-expanded="dashboardMenuOpen.toString()">
+                <span aria-hidden="true">☰</span> Menu
+            </button>
+            <a href="{{ route(auth()->user()->dashboardRouteName()) }}" class="text-xs font-black uppercase tracking-[0.16em]">Gym<span class="text-lime-300">Ravana</span></a>
         </div>
+
+        <header class="border-b border-white/10 bg-[#0f1211]">
+            <div class="mx-auto grid w-full max-w-[1500px] gap-6 px-5 py-7 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:px-10 lg:py-9">
+                <div class="min-w-0">
+                    @isset($header)
+                        {{ $header }}
+                    @else
+                        <h1 class="text-3xl font-black tracking-tight">Dashboard</h1>
+                    @endisset
+                </div>
+                <x-dashboard-identity :user="auth()->user()" :role-label="$roleLabel" />
+            </div>
+        </header>
+
+        <main class="mx-auto w-full max-w-[1500px] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+            @if (session('status'))
+                <div class="mb-7 border-l-2 border-emerald-300 bg-emerald-300/[.07] px-5 py-4 text-sm text-emerald-100">{{ session('status') }}</div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-7 border-l-2 border-rose-300 bg-rose-300/[.07] px-5 py-4 text-sm text-rose-100">
+                    <p class="font-black">Please correct the highlighted information.</p>
+                    <ul class="mt-2 list-disc space-y-1 pl-5 text-rose-200">
+                        @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                    </ul>
+                </div>
+            @endif
+
+            {{ $slot }}
+        </main>
     </div>
-</nav>
-
-@isset($header)
-    <header class="border-b border-white/10 bg-[#111411]"><div class="mx-auto max-w-7xl px-5 py-6 sm:px-8">{{ $header }}</div></header>
-@endisset
-
-<main class="mx-auto max-w-7xl px-5 py-9 sm:px-8">
-    @if (session('status'))
-        <div class="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4 text-emerald-200">{{ session('status') }}</div>
-    @endif
-    {{ $slot }}
-</main>
+</div>
 </body>
 </html>
