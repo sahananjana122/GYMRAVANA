@@ -33,7 +33,10 @@ class PublicContentPagesTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Your strongest chapter starts here.')
-            ->assertSee('Gym Workout')
+            ->assertSee('Body')
+            ->assertSee('Mind')
+            ->assertSee(route('programs.index'))
+            ->assertSee(route('services.category', 'mind'))
             ->assertSee('Yoga Flow')
             ->assertSee('Kavindi Perera')
             ->assertSee('Stress Relief')

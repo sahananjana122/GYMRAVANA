@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\GroupProgram;
 use App\Models\MembershipTier;
-use App\Models\Service;
 use App\Models\TherapyCategory;
 use App\Models\TherapySpecialist;
 use App\Models\TrainerProfile;
@@ -15,14 +14,8 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        $services = Service::query()
-            ->where('is_active', true)
-            ->with('category')
-            ->orderBy('id')
-            ->get();
-
         return view('home', [
-            'featuredPrograms' => $this->featuredPrograms($services),
+            'featuredPrograms' => $this->featuredPrograms(),
             'groupPrograms' => GroupProgram::query()
                 ->where('is_active', true)
                 ->with('trainerProfile.user')
@@ -49,33 +42,25 @@ class HomeController extends Controller
         ]);
     }
 
-    private function featuredPrograms(Collection $services): Collection
+    private function featuredPrograms(): Collection
     {
-        $programs = $services->map(function (Service $service): array {
-            return [
-                'name' => $service->name,
-                'description' => $service->summary,
-                'meta' => $service->level,
-                'image' => 'images/landing/program-'.$service->slug.'.jpg',
-                'href' => route('services.show', [$service->category, $service]),
-            ];
-        });
-
-        return $programs->push(
+        return collect([
             [
-                'name' => 'Personal Training',
-                'description' => 'One-to-one coaching shaped around your goals, movement confidence and schedule.',
-                'meta' => 'Coach guided',
-                'image' => 'images/landing/program-personal-training.jpg',
-                'href' => route('trainers.index'),
+                'name' => 'Body',
+                'description' => 'Explore strength, conditioning, personal coaching and group programmes built for steady physical progress.',
+                'meta' => 'Physical training',
+                'image' => 'images/landing/program-body.jpg',
+                'href' => route('programs.index'),
+                'action' => 'Explore programmes',
             ],
             [
-                'name' => 'Group Training',
-                'description' => 'Structured studio classes that turn shared energy into consistent progress.',
-                'meta' => 'Six class formats',
-                'image' => 'images/landing/program-group-training.jpg',
-                'href' => route('group-programs.index'),
+                'name' => 'Mind',
+                'description' => 'Discover breathing, mindfulness, meditation and mindful movement practices for focus and recovery.',
+                'meta' => 'Mindful practice',
+                'image' => 'images/landing/program-mind.jpg',
+                'href' => route('services.category', 'mind'),
+                'action' => 'Explore mind',
             ],
-        );
+        ]);
     }
 }

@@ -62,16 +62,16 @@
                 <a href="{{ route('programs.index') }}" class="landing-text-link shrink-0 text-lime-300">View all programs <span aria-hidden="true">→</span></a>
             </div>
 
-            <div class="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div class="mt-12 grid gap-4 md:grid-cols-2">
                 @foreach ($featuredPrograms as $program)
-                    <article class="group relative min-h-[470px] overflow-hidden rounded-[1.75rem] bg-[#202723] {{ $loop->iteration <= 2 ? 'xl:col-span-2' : '' }}">
+                    <article class="group relative min-h-[470px] overflow-hidden rounded-[1.75rem] bg-[#202723]">
                         <x-landing-image :path="$program['image']" :alt="$program['name'].' program at GymRAVANA'" :label="$program['name'].' photograph'" class="absolute inset-0 h-full w-full" image-class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>
                         <div class="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                             <p class="text-xs font-black uppercase tracking-[0.18em] text-lime-300">{{ $program['meta'] }}</p>
                             <h3 class="landing-display mt-3 text-4xl leading-none sm:text-5xl">{{ $program['name'] }}</h3>
                             <p class="mt-4 max-w-md text-sm leading-6 text-white/70">{{ $program['description'] }}</p>
-                            <a href="{{ $program['href'] }}" class="mt-6 inline-flex items-center gap-3 text-sm font-black uppercase tracking-wider">View program <span class="grid h-9 w-9 place-items-center rounded-full bg-lime-300 text-black transition group-hover:translate-x-1">→</span></a>
+                            <a href="{{ $program['href'] }}" class="mt-6 inline-flex items-center gap-3 text-sm font-black uppercase tracking-wider">{{ $program['action'] }} <span class="grid h-9 w-9 place-items-center rounded-full bg-lime-300 text-black transition group-hover:translate-x-1">→</span></a>
                         </div>
                     </article>
                 @endforeach
