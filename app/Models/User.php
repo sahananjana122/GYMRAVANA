@@ -89,6 +89,41 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(MonthlyProgressReview::class);
     }
 
+    public function memberMissions(): HasMany
+    {
+        return $this->hasMany(MemberMission::class);
+    }
+
+    public function memberAchievements(): HasMany
+    {
+        return $this->hasMany(MemberAchievement::class);
+    }
+
+    public function progressionReadinessPredictions(): HasMany
+    {
+        return $this->hasMany(ProgressionReadinessPrediction::class);
+    }
+
+    public function latestProgressionReadinessPrediction(): HasOne
+    {
+        return $this->hasOne(ProgressionReadinessPrediction::class)->latestOfMany('predicted_at');
+    }
+
+    public function masterGateApplications(): HasMany
+    {
+        return $this->hasMany(MasterGateApplication::class);
+    }
+
+    public function reviewedMasterGateApplications(): HasMany
+    {
+        return $this->hasMany(MasterGateApplication::class, 'reviewed_by');
+    }
+
+    public function changedReadinessLabels(): HasMany
+    {
+        return $this->hasMany(ReadinessLabelRevision::class, 'changed_by');
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

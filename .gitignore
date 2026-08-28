@@ -14,6 +14,10 @@
 /.zed
 /auth.json
 /node_modules
+/.venv
+**/.ipynb_checkpoints/
+**/__pycache__/
+*.py[cod]
 /.cache
 /public/build
 /public/fonts-manifest.dev.json
@@ -22,6 +26,12 @@
 /storage/*.key
 /storage/pail
 /vendor
+/ai/data/*
+!/ai/data/.gitkeep
+/ai/artifacts/*
+!/ai/artifacts/.gitkeep
+/ai/models/*
+!/ai/models/.gitkeep
 _ide_helper.php
 Homestead.json
 Homestead.yaml

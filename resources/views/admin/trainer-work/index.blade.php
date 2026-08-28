@@ -28,6 +28,10 @@
                         @if ($review->assessment)
                             <p class="mt-3 text-sm font-bold text-amber-300">{{ str($review->assessment)->replace('_', ' ')->title() }} · {{ $review->goal_completion_percent ?? 0 }}% goals</p>
                         @endif
+                        @if ($review->ready_for_progression !== null)
+                            <p class="mt-3 text-sm font-bold {{ $review->ready_for_progression ? 'text-lime-300' : 'text-violet-300' }}">Progression label: {{ $review->ready_for_progression ? 'Ready' : 'Not ready yet' }}</p>
+                            <p class="mt-1 text-xs leading-5 text-stone-500">{{ $review->readiness_rationale }}</p>
+                        @endif
                         @if ($review->trainer_notes)
                             <p class="mt-3 line-clamp-3 text-sm leading-6 text-stone-400">{{ $review->trainer_notes }}</p>
                         @endif

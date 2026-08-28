@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WellnessActivity;
 use App\Models\WellnessCompletion;
+use App\Services\GamificationProgressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,8 +21,11 @@ class WellnessController extends Controller
         ]);
     }
 
-    public function complete(Request $request, WellnessActivity $wellnessActivity): RedirectResponse
-    {
+    public function complete(
+        Request $request,
+        WellnessActivity $wellnessActivity,
+        GamificationProgressService $gamification,
+    ): RedirectResponse {
         abort_unless($wellnessActivity->is_active, 404);
 
         $completion = WellnessCompletion::firstOrCreate(
@@ -34,8 +38,12 @@ class WellnessController extends Controller
         );
 
         $message = $completion->wasRecentlyCreated
-            ? "Activity completed. You earned {$wellnessActivity->points} points."
+            ? "Activity completed. You earned {$wellnessActivity->points} XP."
             : 'You already completed this activity today.';
+
+        if ($completion->wasRecentlyCreated) {
+            $gamification->syncFor($request->user());
+        }
 
         return back()->with('status', $message);
     }

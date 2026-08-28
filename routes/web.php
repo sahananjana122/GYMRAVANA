@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\AiReadinessController;
 use App\Http\Controllers\Admin\BookingManagementController;
 use App\Http\Controllers\Admin\EventManagementController;
 use App\Http\Controllers\Admin\FinanceController;
+use App\Http\Controllers\Admin\GamificationController;
+use App\Http\Controllers\Admin\MasterGateController as AdminMasterGateController;
 use App\Http\Controllers\Admin\MembershipTierController as AdminMembershipTierController;
 use App\Http\Controllers\Admin\NoticeManagementController;
 use App\Http\Controllers\Admin\NotificationActivityController;
@@ -23,6 +26,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupProgramController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Member\MasterGateController as MemberMasterGateController;
+use App\Http\Controllers\Member\MissionController as MemberMissionController;
 use App\Http\Controllers\Member\PortalController as MemberPortalController;
 use App\Http\Controllers\Member\ProgressPhotoController;
 use App\Http\Controllers\MembershipController;
@@ -96,6 +101,12 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('member')->name('member.')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'member'])->name('dashboard');
+            Route::get('/level-and-xp', [MemberPortalController::class, 'progression'])->name('progression.index');
+            Route::get('/quests', [MemberMissionController::class, 'index'])->name('missions.index');
+            Route::post('/quests/{gamificationMission}/join', [MemberMissionController::class, 'join'])->name('missions.join');
+            Route::get('/master-gate', [MemberMasterGateController::class, 'index'])->name('master-gate.index');
+            Route::post('/master-gate/applications', [MemberMasterGateController::class, 'store'])->name('master-gate.applications.store');
+            Route::patch('/master-gate/applications/{masterGateApplication}/withdraw', [MemberMasterGateController::class, 'withdraw'])->name('master-gate.applications.withdraw');
             Route::get('/progress', [MemberPortalController::class, 'progress'])->name('progress.index');
             Route::get('/library', [MemberPortalController::class, 'library'])->name('library.index');
             Route::get('/meal-plan', [MemberPortalController::class, 'mealPlan'])->name('meal-plan.index');
@@ -160,6 +171,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/events', [EventManagementController::class, 'store'])->name('events.store');
         Route::patch('/events/{event}', [EventManagementController::class, 'update'])->name('events.update');
         Route::delete('/events/{event}', [EventManagementController::class, 'destroy'])->name('events.destroy');
+        Route::get('/gamification', [GamificationController::class, 'index'])->name('gamification.index');
+        Route::post('/gamification/missions', [GamificationController::class, 'storeMission'])->name('gamification.missions.store');
+        Route::patch('/gamification/missions/{gamificationMission}', [GamificationController::class, 'updateMission'])->name('gamification.missions.update');
+        Route::delete('/gamification/missions/{gamificationMission}', [GamificationController::class, 'destroyMission'])->name('gamification.missions.destroy');
+        Route::post('/gamification/achievements', [GamificationController::class, 'storeAchievement'])->name('gamification.achievements.store');
+        Route::patch('/gamification/achievements/{achievement}', [GamificationController::class, 'updateAchievement'])->name('gamification.achievements.update');
+        Route::delete('/gamification/achievements/{achievement}', [GamificationController::class, 'destroyAchievement'])->name('gamification.achievements.destroy');
+        Route::get('/master-gate', [AdminMasterGateController::class, 'index'])->name('master-gate.index');
+        Route::patch('/master-gate/applications/{masterGateApplication}', [AdminMasterGateController::class, 'decide'])->name('master-gate.applications.decide');
+        Route::get('/ai-readiness', [AiReadinessController::class, 'index'])->name('ai-readiness.index');
+        Route::post('/ai-readiness/members/{member}/predict', [AiReadinessController::class, 'predict'])
+            ->middleware('throttle:5,1')
+            ->name('ai-readiness.members.predict');
         Route::get('/notices', [NoticeManagementController::class, 'index'])->name('notices.index');
         Route::get('/notices/create', [NoticeManagementController::class, 'create'])->name('notices.create');
         Route::post('/notices', [NoticeManagementController::class, 'store'])->name('notices.store');

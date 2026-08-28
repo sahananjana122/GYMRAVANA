@@ -3,15 +3,43 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
+use App\Services\GamificationProgressService;
+use App\Services\GamificationService;
 use App\Services\MemberDashboardService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class PortalController extends Controller
 {
+    public function progression(
+        Request $request,
+        GamificationService $gamification,
+        GamificationProgressService $progress,
+    ): View {
+        $progress->syncFor($request->user());
+
+        return view('member.progression.index', [
+            'gamification' => $gamification->summaryFor($request->user()),
+        ]);
+    }
+
     public function progress(Request $request, MemberDashboardService $dashboard): View
     {
-        return view('member.progress.index', $dashboard->dataFor($request->user()));
+        $validated = $request->validate([
+            'month' => ['nullable', 'date_format:Y-m'],
+        ]);
+        $month = isset($validated['month'])
+            ? Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth()
+            : today()->startOfMonth();
+
+        abort_if(
+            $month->isAfter(today()->startOfMonth()),
+            422,
+            'Future monthly progress is not available.',
+        );
+
+        return view('member.progress.index', $dashboard->dataFor($request->user(), $month));
     }
 
     public function library(Request $request, MemberDashboardService $dashboard): View

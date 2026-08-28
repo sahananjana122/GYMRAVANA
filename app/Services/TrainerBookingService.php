@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class TrainerBookingService
 {
-    public function __construct(private SessionNotificationService $notifications) {}
+    public function __construct(
+        private SessionNotificationService $notifications,
+        private GamificationProgressService $gamification,
+    ) {}
 
     public function updateSchedule(TrainerBooking $booking, array $data, User $actor): TrainerBooking
     {
@@ -40,6 +43,10 @@ class TrainerBookingService
 
         if ($notificationEvent) {
             $this->notifications->sendTrainerUpdate($updatedBooking, $notificationEvent);
+        }
+
+        if ($updatedBooking->status === TrainerBooking::STATUS_COMPLETED) {
+            $this->gamification->syncFor($updatedBooking->member);
         }
 
         return $updatedBooking;

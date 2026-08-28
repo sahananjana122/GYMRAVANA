@@ -41,6 +41,11 @@
                         ['Other events', 'Maintain workshops and events.', route('admin.events.index')],
                         ['Notification activity', 'Inspect in-app delivery and read state.', route('admin.notifications.index')],
                     ],
+                    'Progression' => [
+                        ['Quests & achievements', 'Manage transparent goals and milestone definitions.', route('admin.gamification.index')],
+                        ['Master Gate reviews', 'Review advanced-member applications and audit overrides.', route('admin.master-gate.index')],
+                        ['AI data readiness', 'Track trainer-recorded label coverage before local model training.', route('admin.ai-readiness.index')],
+                    ],
                 ] as $group => $links)
                     <div>
                         <h3 class="border-b border-white/10 pb-3 text-xs font-black uppercase tracking-[0.17em] text-stone-500">{{ $group }}</h3>

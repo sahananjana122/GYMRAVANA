@@ -30,6 +30,8 @@ class MonthlyProgressReviewRequest extends FormRequest
             'goal_completion_percent' => ['nullable', 'integer', 'between:0,100'],
             'rating' => ['nullable', 'integer', 'between:1,5'],
             'assessment' => ['nullable', Rule::in(MonthlyProgressReview::ASSESSMENTS)],
+            'ready_for_progression' => ['nullable', 'boolean'],
+            'readiness_rationale' => ['nullable', 'required_with:ready_for_progression', 'string', 'min:20', 'max:2000'],
             'trainer_notes' => ['nullable', 'string', 'max:5000'],
             'next_month_goals' => ['nullable', 'string', 'max:3000'],
         ];

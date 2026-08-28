@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MonthlyProgressReview extends Model
 {
@@ -27,6 +28,9 @@ class MonthlyProgressReview extends Model
         'goal_completion_percent',
         'rating',
         'assessment',
+        'ready_for_progression',
+        'readiness_rationale',
+        'readiness_assessed_at',
         'trainer_notes',
         'next_month_goals',
     ];
@@ -37,6 +41,8 @@ class MonthlyProgressReview extends Model
             'review_month' => 'date',
             'goal_completion_percent' => 'integer',
             'rating' => 'integer',
+            'ready_for_progression' => 'boolean',
+            'readiness_assessed_at' => 'datetime',
         ];
     }
 
@@ -48,5 +54,10 @@ class MonthlyProgressReview extends Model
     public function member(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function readinessLabelRevisions(): HasMany
+    {
+        return $this->hasMany(ReadinessLabelRevision::class);
     }
 }

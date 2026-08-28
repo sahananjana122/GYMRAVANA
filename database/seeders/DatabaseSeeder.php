@@ -117,6 +117,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EventSeeder::class);
         $this->call(NoticeSeeder::class);
         $this->call(FinanceSeeder::class);
+        $this->call(GamificationSeeder::class);
         $this->seedProgramAndConsultationContent();
         $this->seedLegacyWellnessContent();
         $this->seedOptionalAdmin();

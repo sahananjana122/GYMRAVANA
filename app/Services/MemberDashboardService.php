@@ -7,17 +7,18 @@ use App\Models\TherapyAppointment;
 use App\Models\TrainerBooking;
 use App\Models\User;
 use App\Models\WorkoutPlan;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class MemberDashboardService
 {
     public function __construct(private readonly ExternalLibraryService $library) {}
 
-    public function dataFor(User $user): array
+    public function dataFor(User $user, ?Carbon $month = null): array
     {
         $user->load(['memberProfile.membershipTier', 'enrolledServices.category']);
-        $monthStart = now()->startOfMonth();
-        $monthEnd = now()->endOfMonth();
+        $monthStart = ($month ?? now())->copy()->startOfMonth();
+        $monthEnd = $monthStart->copy()->endOfMonth();
 
         $workoutCompletions = $user->workoutCompletions()
             ->whereBetween('completed_on', [$monthStart->toDateString(), $monthEnd->toDateString()])
@@ -37,10 +38,18 @@ class MemberDashboardService
             ->whereBetween('recorded_on', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->orderBy('recorded_on')
             ->get();
+        $activeDays = $this->activeDays(
+            $workoutCompletions,
+            $wellnessCompletions,
+            $completedTrainerSessions,
+            $completedTherapySessions,
+        );
+        $daysConsidered = $monthStart->isSameMonth(today())
+            ? max(1, today()->day)
+            : $monthStart->daysInMonth;
 
         return [
             'user' => $user,
-            'totalPoints' => $user->totalPoints(),
             'upcomingTrainerSessions' => $user->trainerBookings()
                 ->with('trainerProfile.user')
                 ->upcoming()
@@ -62,20 +71,24 @@ class MemberDashboardService
                 ->limit(5)
                 ->get(),
             'monthlyProgress' => [
+                'key' => $monthStart->format('Y-m'),
                 'label' => $monthStart->format('F Y'),
+                'previous_month' => $monthStart->copy()->subMonthNoOverflow()->format('Y-m'),
+                'next_month' => $monthStart->isBefore(today()->startOfMonth())
+                    ? $monthStart->copy()->addMonthNoOverflow()->format('Y-m')
+                    : null,
                 'workouts' => $workoutCompletions->count(),
                 'wellness' => $wellnessCompletions->count(),
                 'trainer_sessions' => $completedTrainerSessions->count(),
                 'therapy_sessions' => $completedTherapySessions->count(),
                 'points' => (int) $workoutCompletions->sum('points_awarded')
                     + (int) $wellnessCompletions->sum('points_awarded'),
-                'active_days' => $this->activeDays(
-                    $workoutCompletions,
-                    $wellnessCompletions,
-                    $completedTrainerSessions,
-                    $completedTherapySessions,
-                ),
-                'weight_change' => $this->weightChange($measurements),
+                'active_days' => $activeDays,
+                'days_considered' => $daysConsidered,
+                'consistency_percent' => min(100, (int) round(($activeDays / $daysConsidered) * 100)),
+                'measurements' => $measurements,
+                'weight_change' => $this->measurementChange($measurements, 'weight_kg'),
+                'waist_change' => $this->measurementChange($measurements, 'waist_cm'),
                 'latest_measurement_date' => $measurements->last()?->recorded_on,
             ],
             'library' => $this->library->details(),
@@ -110,14 +123,16 @@ class MemberDashboardService
             ->count();
     }
 
-    private function weightChange(Collection $measurements): ?float
+    private function measurementChange(Collection $measurements, string $field): ?float
     {
-        if ($measurements->count() < 2
-            || $measurements->first()->weight_kg === null
-            || $measurements->last()->weight_kg === null) {
+        $values = $measurements->pluck($field)
+            ->filter(fn ($value) => $value !== null)
+            ->values();
+
+        if ($values->count() < 2) {
             return null;
         }
 
-        return round((float) $measurements->last()->weight_kg - (float) $measurements->first()->weight_kg, 2);
+        return round((float) $values->last() - (float) $values->first(), 2);
     }
 }

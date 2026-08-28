@@ -20,6 +20,11 @@ GymRAVANA is an undergraduate software engineering project built with Laravel, B
 - Three-section member dashboard for upcoming sessions, read-only assigned workout/meal plans, monthly progress, booking shortcuts, and library resources
 - Trainer plan builder for assigned clients with structured workout/meal items, start/end dates, draft/active/completed states, and preserved version history
 - Private monthly trainer tracker using existing workout, wellness, attendance, points, consistency, goal, rating, and assessment data
+- Trainer-recorded progression-readiness labels with a required evidence rationale, providing ground truth for the future local AI without making automated gate decisions
+- Transparent member XP, levels, automatic ranks and activity streaks derived from existing completion records without calling deterministic rules AI
+- Member-opted quests, time-limited challenges, permanent achievements, and one-time auditable mission XP rewards
+- Explainable Master Gate application requirements, immutable eligibility snapshots, administrator human review, mandatory override reasons, and revocable approval history
+- Shared privacy-safe readiness feature generation, a disabled-by-default loopback-only Laravel client, and an admin-controlled idempotent prediction workflow that stores nothing without a valid reviewed model response
 - Member-controlled permission for sharing monthly weight/waist trends with assigned trainers; raw measurement notes are never shown in the tracker
 - Read-only administrator oversight of the latest trainer plans and private monthly reviews
 - Centrally configured external Google Drive books/movie library with URL validation, an external-link warning, and a safe unconfigured state
@@ -42,6 +47,7 @@ The therapy material is educational and is not medical diagnosis or emergency ca
 - MySQL 8 or a compatible MariaDB server
 - Node.js 22 or a version supported by Vite 8
 - npm
+- Python 3.12 for the isolated Phase 7 Jupyter environment
 - PHP DOM, XMLReader, and ZIP extensions for real Excel workbook generation
 
 On the original development computer, use `C:\php\php.exe`. The older XAMPP PHP 8.2 executable does not satisfy the current dependency lock file. XAMPP can still provide MySQL.
@@ -114,6 +120,8 @@ Then open `http://127.0.0.1:8000`. Apache is not required when using `php artisa
 - Assigned workout and meal plans remain read-only for members. Trainers create plans only for clients linked through an accepted or completed booking.
 - Saving a plan update creates a new version and archives the preceding version instead of overwriting history. Drafts remain trainer-only; active and completed versions are visible to the owning member.
 - Trainers open **Dashboard → Plans** to create/update plans and **Dashboard → Monthly tracker** to review existing activity and record monthly goals, completion, ratings, assessments, private notes, and next-month goals.
+- The monthly tracker can also record `ready`, `not ready yet`, or `not assessed` for progression readiness. Trainers can filter the selected month by pending/assessed status, while the trainer dashboard counts ordinary review records separately from usable readiness labels. Creation, decision changes, rationale changes and clearing are retained in an administrator-only revision trail; repeated unchanged saves do not create false history. The admin AI-readiness screen blocks contradictory member/month decisions and reports rationale, revision, trainer-concentration and class-balance quality signals. This is private trainer-supplied ground truth; it is not an AI prediction and does not unlock Master Gate.
+- Member XP is calculated from published rules in `config/gamification.php`. Therapy use, measurements, purchases and readiness labels never award XP, and automatic ranks never grant Master status.
 - Monthly consistency is a transparent calculation: distinct active days divided by days elapsed in the current month (or all days in a completed month). It is not AI and is not a medical assessment.
 - Body-measurement trends are hidden from trainers by default. A member can enable or revoke sharing under **Account → Profile Information**; only monthly weight/waist change is shown, never raw measurement notes.
 - Administrators can inspect latest plans and monthly reviews under **Admin dashboard → Trainer plans & reviews**. This oversight page is read-only.
@@ -144,7 +152,7 @@ Design and implementation decisions made where the brief was ambiguous are recor
 
 ## Roadmap status
 
-Phases 1–6 are implemented locally, completing the normal non-AI platform described in the current project brief. Phase 7 Master Gate and locally trained AI remain explicitly deferred and must not begin until the user gives separate authorization.
+Phases 1–6 are implemented locally, completing the normal non-AI platform described in the current project brief. Phase 7 currently includes transparent XP/levels/ranks/streaks, quests/challenges/achievements, trainer readiness-label collection, a privacy-safe Laravel dataset exporter with a versioned SHA-256 integrity contract, a reproducible Python 3.12/Jupyter environment, guarded EDA/model-comparison/explainability notebooks, a fail-closed local FastAPI inference boundary, a loopback-only Laravel client using the exporter's shared feature calculations, an admin-controlled idempotent prediction workflow, an admin-only data-sufficiency checkpoint aligned with Notebook 02, and an auditable Master Gate application/human-review workflow. No model has been trained because genuine labels are still absent, so the prediction action remains unavailable and the gate's AI criterion remains visibly `Not evaluated`. See the [gamification rules](docs/gamification.md), [Master Gate workflow](docs/master-gate.md), [Phase 7 AI data readiness](docs/ai/phase-7-data-readiness.md), [local inference-service guide](docs/ai/local-inference-service.md), the [public dataset suitability audit](docs/ai/public-dataset-suitability.md), and [the local AI workspace](ai/README.md).
 
 ## Validation
 
@@ -174,4 +182,4 @@ git diff --check
 
 Production hosting, HTTPS, SMTP delivery, mandatory verification, a real payment provider, media optimisation, backups, monitoring, and a formal privacy/legal review remain separate later phases.
 
-The locally trained progression-readiness AI and Master Gate are explicitly deferred to final Phase 7. They must not begin until Phases 1–6 are working and the user authorizes the AI phase.
+The genuinely trained progression-readiness model remains unfinished Phase 7 work. The guarded notebooks, local service, Laravel client and controlled persistence workflow are implemented, but they correctly produce and store no real prediction until genuine supervised-learning evidence passes every gate and an artifact is reviewed. The Master Gate interface therefore records transparent eligibility and human decisions without claiming that AI is active.

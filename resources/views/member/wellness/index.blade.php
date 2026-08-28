@@ -9,7 +9,7 @@
                 <p class="text-xs uppercase tracking-widest text-red-400">{{ $activity->category }}</p>
                 <h2 class="mt-2 text-lg font-semibold">{{ $activity->title }}</h2>
                 <p class="mt-3 text-sm leading-6 text-zinc-400">{{ $activity->description }}</p>
-                <p class="mt-4 text-sm text-zinc-500">{{ $activity->duration_minutes }} minutes · {{ $activity->points }} points</p>
+                <p class="mt-4 text-sm text-zinc-500">{{ $activity->duration_minutes }} minutes · {{ $activity->points }} XP</p>
                 @if ($completedToday->contains($activity->id))
                     <p class="mt-4 font-semibold text-emerald-400">Completed today</p>
                 @else
