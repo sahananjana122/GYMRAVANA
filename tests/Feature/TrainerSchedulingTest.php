@@ -96,7 +96,7 @@ class TrainerSchedulingTest extends TestCase
         $this->assertNotNull($booking->confirmed_at);
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.schedules.index'))
             ->assertOk()
             ->assertSee($start->format('d M Y, H:i'))
             ->assertSee('Please arrive by '.$start->copy()->subMinutes(15)->format('H:i'))

@@ -27,18 +27,19 @@ class MemberDashboardRedesignTest extends TestCase
         $this->seed();
     }
 
-    public function test_member_dashboard_has_three_primary_sections_and_truthful_empty_plan_states(): void
+    public function test_member_dashboard_is_a_focused_private_progress_photo_gallery(): void
     {
         $member = $this->member();
 
         $this->actingAs($member)
             ->get(route('member.dashboard'))
             ->assertOk()
-            ->assertSee('Schedule & Plans', false)
-            ->assertSee('Book Sessions')
-            ->assertSee('Library & Movies', false)
-            ->assertSee('No active plan assigned')
-            ->assertSee('Library link not configured.');
+            ->assertSee('My Transformation')
+            ->assertSee('Before & after photos', false)
+            ->assertSee('dashboard-watermark', false)
+            ->assertDontSee('Schedule & Plans', false)
+            ->assertDontSee('Book Sessions')
+            ->assertDontSee('Library & Movies', false);
     }
 
     public function test_member_sees_only_their_own_upcoming_sessions_and_non_draft_plans(): void
@@ -69,16 +70,24 @@ class MemberDashboardRedesignTest extends TestCase
         $this->plan($otherMember, $trainer, MemberPlan::TYPE_WORKOUT, 'Other Member Private Plan');
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.schedules.index'))
             ->assertOk()
             ->assertSee($trainer->user->name)
             ->assertSee('Visible trainer update')
             ->assertDontSee('Private trainer update')
             ->assertSee($specialist->name)
-            ->assertDontSee($otherSpecialist->name)
+            ->assertDontSee($otherSpecialist->name);
+
+        $this->get(route('member.workouts.index'))
+            ->assertOk()
             ->assertSee('My Strength Foundation')
             ->assertSee('Goblet squat practice')
             ->assertSee('Monday · 07:30 · Strength')
+            ->assertDontSee('Secret Draft Plan')
+            ->assertDontSee('Other Member Private Plan');
+
+        $this->get(route('member.meal-plan.index'))
+            ->assertOk()
             ->assertSee('My Balanced Meal Guide')
             ->assertDontSee('Secret Draft Plan')
             ->assertDontSee('Other Member Private Plan');
@@ -125,13 +134,11 @@ class MemberDashboardRedesignTest extends TestCase
         ]);
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.progress.index'))
             ->assertOk()
-            ->assertSeeInOrder(['Points this month', '30'])
+            ->assertSeeInOrder(['30', 'Workout &amp; mind XP'], false)
             ->assertSee('2 active days')
-            ->assertSee('-0.50 kg this month')
-            ->assertDontSee('+1029 pts')
-            ->assertDontSee('+530 pts');
+            ->assertSee('-0.50 kg');
     }
 
     public function test_configured_library_url_is_rendered_as_a_safe_external_link(): void
@@ -141,7 +148,7 @@ class MemberDashboardRedesignTest extends TestCase
         config()->set('gymravana.library.label', 'Member Learning Collection');
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.library.index'))
             ->assertOk()
             ->assertSee('Member Learning Collection')
             ->assertSee('https://drive.google.com/drive/folders/example', false)
@@ -155,7 +162,7 @@ class MemberDashboardRedesignTest extends TestCase
         config()->set('gymravana.library.url', 'javascript:alert(1)');
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.library.index'))
             ->assertOk()
             ->assertSee('Library link not configured.')
             ->assertDontSee('javascript:alert(1)', false);

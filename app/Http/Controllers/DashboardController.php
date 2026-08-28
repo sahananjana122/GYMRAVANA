@@ -11,8 +11,6 @@ use App\Models\TherapyRequest;
 use App\Models\TrainerBooking;
 use App\Models\TrainerProfile;
 use App\Models\User;
-use App\Services\ExternalLibraryService;
-use App\Services\MemberDashboardService;
 use App\Services\TrainerClientAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,9 +26,11 @@ class DashboardController extends Controller
         return redirect()->route($route);
     }
 
-    public function member(Request $request, MemberDashboardService $dashboard): View
+    public function member(Request $request): View
     {
-        return view('dashboards.member', $dashboard->dataFor($request->user()));
+        return view('dashboards.member', [
+            'user' => $request->user()->load('memberProfile'),
+        ]);
     }
 
     public function admin(): View
@@ -53,25 +53,24 @@ class DashboardController extends Controller
     public function trainer(
         Request $request,
         TrainerClientAccessService $access,
-        ExternalLibraryService $library,
     ): View {
         $profile = $request->user()->trainerProfile;
-        $assignedClients = $profile
-            ? $access->assignedMembersQuery($profile)->with('memberProfile.membershipTier')->orderBy('name')->limit(6)->get()
+        $assignedMemberIds = $profile
+            ? $access->assignedMembersQuery($profile)->pluck('users.id')
             : collect();
-
+        $assignedClientCount = $assignedMemberIds->count();
+        $reviewsThisMonth = $profile?->monthlyProgressReviews()
+            ->whereIn('user_id', $assignedMemberIds)
+            ->whereDate('review_month', today()->startOfMonth())
+            ->count() ?? 0;
         return view('dashboards.trainer', [
             'profile' => $profile,
             'pendingBookings' => $profile?->bookings()->where('status', TrainerBooking::STATUS_PENDING)->count() ?? 0,
             'todaySessions' => $profile?->bookings()->with('member')->where('status', TrainerBooking::STATUS_ACCEPTED)->whereDate('confirmed_start_at', today())->orderBy('confirmed_start_at')->get() ?? collect(),
-            'upcomingBookings' => $profile?->bookings()->with('member')->upcoming()->orderBy('confirmed_start_at')->limit(6)->get() ?? collect(),
-            'completedBookings' => $profile?->bookings()->where('status', TrainerBooking::STATUS_COMPLETED)->count() ?? 0,
-            'cancelledBookings' => $profile?->bookings()->whereIn('status', [TrainerBooking::STATUS_CANCELLED, TrainerBooking::STATUS_DECLINED])->count() ?? 0,
-            'assignedClientCount' => $profile ? $access->assignedMembersQuery($profile)->count() : 0,
-            'assignedClients' => $assignedClients,
+            'upcomingBookingCount' => $profile?->bookings()->upcoming()->count() ?? 0,
+            'assignedClientCount' => $assignedClientCount,
             'activePlanCount' => $profile?->memberPlans()->where('status', MemberPlan::STATUS_ACTIVE)->count() ?? 0,
-            'reviewsThisMonth' => $profile?->monthlyProgressReviews()->whereDate('review_month', today()->startOfMonth())->count() ?? 0,
-            'library' => $library->details(),
+            'reviewsThisMonth' => $reviewsThisMonth,
         ]);
     }
 

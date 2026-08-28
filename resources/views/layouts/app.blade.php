@@ -42,7 +42,7 @@
             </div>
         </header>
 
-        <main class="mx-auto w-full max-w-[1500px] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+        <main class="dashboard-watermark mx-auto w-full max-w-[1500px] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
             @if (session('status'))
                 <div class="mb-7 border-l-2 border-emerald-300 bg-emerald-300/[.07] px-5 py-4 text-sm text-emerald-100">{{ session('status') }}</div>
             @endif

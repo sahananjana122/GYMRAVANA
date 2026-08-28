@@ -21,32 +21,38 @@ class DashboardNavigationPhaseTest extends TestCase
         $this->seed();
     }
 
-    public function test_member_dashboard_uses_the_eight_required_navigation_destinations(): void
+    public function test_member_dashboard_navigation_exposes_each_dedicated_destination(): void
     {
         $member = $this->member();
         $response = $this->actingAs($member)->get(route('member.dashboard'))->assertOk();
 
         preg_match('/<nav[^>]+data-dashboard-primary-navigation[^>]*>(.*?)<\/nav>/s', $response->getContent(), $matches);
         $this->assertArrayHasKey(1, $matches);
-        $this->assertSame(8, substr_count($matches[1], '<a'));
+        $this->assertSame(13, substr_count($matches[1], '<a'));
 
         foreach ([
             route('home'),
             route('member.dashboard'),
             route('trainers.index'),
-            route('member.progress.index'),
-            route('member.library.index'),
-            route('notifications.index'),
+            route('member.workouts.index'),
             route('member.meal-plan.index'),
             route('member.schedules.index'),
+            route('member.progress.index'),
+            route('member.progression.index'),
+            route('member.missions.index'),
+            route('member.master-gate.index'),
+            route('member.wellness.index'),
+            route('member.library.index'),
+            route('notifications.index'),
         ] as $destination) {
             $this->assertStringContainsString('href="'.$destination.'"', $matches[1]);
         }
 
-        $response->assertSee('Welcome to My Gym')
+        $response->assertSee('My Transformation')
             ->assertSee('Before')
             ->assertSee('After')
-            ->assertSee('Joined 14 March 2026');
+            ->assertSee('Joined 14 March 2026')
+            ->assertSee('dashboard-watermark', false);
     }
 
     public function test_dedicated_member_pages_reuse_existing_private_data_services(): void
@@ -54,6 +60,8 @@ class DashboardNavigationPhaseTest extends TestCase
         $member = $this->member();
 
         $this->actingAs($member)->get(route('member.progress.index'))->assertOk()->assertSee('Monthly Tracking Sheet');
+        $this->get(route('member.progression.index'))->assertOk()->assertSee('Level & XP', false);
+        $this->get(route('member.missions.index'))->assertOk()->assertSee('Quests & Achievements', false);
         $this->get(route('member.library.index'))->assertOk()->assertSee('Library & Movies', false);
         $this->get(route('member.meal-plan.index'))->assertOk()->assertSee('No active plan assigned');
         $this->get(route('member.schedules.index'))->assertOk()->assertSee('Trainer sessions')->assertSee('Therapy appointments');

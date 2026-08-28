@@ -20,7 +20,7 @@ class TrainerPlanManagementTest extends TestCase
         $this->seed();
     }
 
-    public function test_trainer_dashboard_contains_the_four_phase_six_areas_and_only_assigned_clients(): void
+    public function test_trainer_dashboard_is_a_focused_daily_overview_without_submenu_content(): void
     {
         $trainer = TrainerProfile::approved()->firstOrFail();
         $assigned = $this->member('Assigned Dashboard Client');
@@ -30,11 +30,12 @@ class TrainerPlanManagementTest extends TestCase
         $this->actingAs($trainer->user)
             ->get(route('trainer.dashboard'))
             ->assertOk()
-            ->assertSee('Schedule, Workout & Meal Plans', false)
-            ->assertSee('Booking Sessions')
-            ->assertSeeInOrder(['03', 'Library'])
-            ->assertSee('Monthly Tracker')
-            ->assertSee($assigned->name)
+            ->assertSee("Today's confirmed sessions")
+            ->assertSee('dashboard-watermark', false)
+            ->assertDontSee('Schedule, Workout & Meal Plans', false)
+            ->assertDontSee('Shared resources')
+            ->assertDontSee('Private review')
+            ->assertDontSee($assigned->name)
             ->assertDontSee($unrelated->name);
     }
 
@@ -64,7 +65,7 @@ class TrainerPlanManagementTest extends TestCase
         ]);
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.workouts.index'))
             ->assertOk()
             ->assertSee('Assigned Strength Plan')
             ->assertSee('Goblet squat practice');
@@ -111,7 +112,7 @@ class TrainerPlanManagementTest extends TestCase
             ->assertSee('Version 1');
 
         $this->actingAs($member)
-            ->get(route('member.dashboard'))
+            ->get(route('member.workouts.index'))
             ->assertOk()
             ->assertSee('Updated Strength Plan')
             ->assertSee('Split squat practice');

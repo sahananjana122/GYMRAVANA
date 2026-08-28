@@ -31,11 +31,16 @@ class AppLayout extends Component
                 $this->item('Public Website', 'home'),
                 $this->item('Dashboard', 'member.dashboard', ['member.dashboard']),
                 $this->item('Trainers', 'trainers.index', ['trainers.*']),
-                $this->item('Progress', 'member.progress.index', ['member.progress.*', 'member.measurements.*']),
-                $this->item('Library', 'member.library.index', ['member.library.*']),
-                $this->item('Alerts', 'notifications.index', ['notifications.*'], $unreadNotificationCount),
+                $this->item('Workouts', 'member.workouts.index', ['member.workouts.*']),
                 $this->item('Meal Plan', 'member.meal-plan.index', ['member.meal-plan.*']),
                 $this->item('Schedules', 'member.schedules.index', ['member.schedules.*']),
+                $this->item('Progress', 'member.progress.index', ['member.progress.*', 'member.measurements.*']),
+                $this->item('Level & XP', 'member.progression.index', ['member.progression.*']),
+                $this->item('Quests', 'member.missions.index', ['member.missions.*']),
+                $this->item('Master Gate', 'member.master-gate.index', ['member.master-gate.*']),
+                $this->item('Mind & Wellness', 'member.wellness.index', ['member.wellness.*', 'member.therapy.*']),
+                $this->item('Library', 'member.library.index', ['member.library.*']),
+                $this->item('Alerts', 'notifications.index', ['notifications.*'], $unreadNotificationCount),
             ];
         }
 
@@ -79,6 +84,9 @@ class AppLayout extends Component
                 $this->item('Finance & Reports', 'admin.finance.index', ['admin.finance.*'], null, 'Business'),
                 $this->item('Notices', 'admin.notices.index', ['admin.notices.*'], null, 'Publishing'),
                 $this->item('Events', 'admin.events.index', ['admin.events.*'], null, 'Publishing'),
+                $this->item('Quests & Achievements', 'admin.gamification.index', ['admin.gamification.*'], null, 'Progression'),
+                $this->item('Master Gate Reviews', 'admin.master-gate.index', ['admin.master-gate.*'], null, 'Progression'),
+                $this->item('AI Data Readiness', 'admin.ai-readiness.index', ['admin.ai-readiness.*'], null, 'Progression'),
                 $this->item('Notification Activity', 'admin.notifications.index', ['admin.notifications.*'], null, 'Publishing'),
                 $this->item('My Alerts', 'notifications.index', ['notifications.*'], $unreadNotificationCount, 'Account'),
             ];

@@ -11,8 +11,9 @@
                 @forelse ($upcomingTrainerSessions as $session)
                     <article class="py-5">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div><h3 class="font-black">{{ $session->trainerProfile->user->name }}</h3><p class="mt-1 text-sm text-stone-400">{{ $session->program_type }} · {{ $session->duration_minutes }} minutes · {{ str($session->status)->title() }}</p></div><time class="text-sm font-black text-lime-300">{{ $session->confirmed_start_at->format('d M Y, H:i') }}</time></div>
-                        <p class="mt-2 text-xs text-stone-500">Required arrival: {{ $session->required_arrival_at->format('d M Y, H:i') }}</p>
+                        <p class="mt-2 text-xs text-stone-500">Please arrive by {{ $session->required_arrival_at->format('H:i') }} on {{ $session->required_arrival_at->format('d M Y') }}.</p>
                         @if ($session->preparation_instructions)<p class="mt-3 text-sm leading-6 text-stone-400">{{ $session->preparation_instructions }}</p>@endif
+                        @if ($session->trainer_message)<p class="mt-2 text-sm leading-6 text-stone-400">Trainer update: {{ $session->trainer_message }}</p>@endif
                     </article>
                 @empty
                     <p class="py-6 text-sm text-stone-500">No upcoming trainer sessions are confirmed.</p>
