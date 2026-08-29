@@ -103,6 +103,14 @@ npm run dev
 
 Then open `http://127.0.0.1:8000`. Apache is not required when using `php artisan serve`; starting MySQL from XAMPP is sufficient.
 
+If the first page load after editing a Blade file is slow in the OneDrive project folder, warm the compiled views before refreshing:
+
+```bash
+php artisan view:cache
+```
+
+The built-in development server allows up to 120 seconds for this cold local compilation. This safeguard applies only to `php artisan serve`; production PHP limits are unchanged.
+
 ## Development behaviour
 
 - Email verification is optional and does not block login or dashboards.
