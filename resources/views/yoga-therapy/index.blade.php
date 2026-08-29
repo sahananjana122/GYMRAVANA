@@ -1,12 +1,12 @@
 @extends('layouts.public')
-@section('title', 'Yoga Therapy')
+@section('title', 'Therapy Services')
 @section('content')
 <main>
     <section class="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[.9fr_1.1fr]">
         <div>
-            <p class="section-kicker text-rose-300">Yoga therapy</p>
-            <h1 class="page-title">Request a more restorative approach.</h1>
-            <p class="page-lead">Tell us what kind of non-emergency wellness support you are looking for. No account is required; a team member will contact you.</p>
+            <p class="section-kicker text-rose-300">Therapy services</p>
+            <h1 class="page-title">Relax, recover and move with greater comfort.</h1>
+            <p class="page-lead">Choose from the therapy services provided by GymRAVANA trainer and therapist W.H.K.T Nimesh. No account is required; our team will contact you about your request.</p>
             <a href="{{ route('therapy-finder.index') }}" class="mt-7 inline-flex rounded-full bg-lime-300 px-6 py-3 font-black text-[#10231d]">Try the guided therapy finder &rarr;</a>
             <div id="therapy-categories" class="mt-10 grid scroll-mt-32 gap-3">
                 @foreach ($categories as $category)
@@ -39,9 +39,9 @@
                 </div>
             </div>
             <div>
-                <label class="form-label">Therapy category</label>
+                <label class="form-label">Therapy service</label>
                 <select name="therapy_category_id" class="form-input" required>
-                    <option value="">Choose a category</option>
+                    <option value="">Choose a service</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @selected(old('therapy_category_id') == $category->id)>{{ $category->name }}</option>
                     @endforeach

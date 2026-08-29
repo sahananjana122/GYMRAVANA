@@ -35,6 +35,6 @@ class YogaTherapyController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('status', 'Thank you. Your yoga therapy request has been received.');
+        return back()->with('status', 'Thank you. Your therapy service request has been received.');
     }
 }

@@ -4,7 +4,7 @@ GymRAVANA is an undergraduate software engineering project built with Laravel, B
 
 ## Implemented features
 
-- Public landing, About, Programs, Group Programs, Other Events, Notice Board, Contact, membership, trainer, yoga therapy, and fitness-store pages
+- Public landing, About, Programs, Group Programs, Other Events, Notice Board, Contact, membership, trainer, therapy-services, and fitness-store pages
 - Guest/member group-class joining requests and database-backed contact enquiries with validation and rate limiting
 - Guest and signed-in shopping cart with mock checkout, inventory reduction, order records, and confirmation pages
 - Member registration with membership selection and optional email verification

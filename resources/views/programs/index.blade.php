@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Fitness and Wellness Programs')
-@section('meta_description', 'Explore GymRAVANA Body, Mind, group fitness and yoga therapy programs.')
+@section('meta_description', 'Explore GymRAVANA Body, Mind, group fitness and therapist-led recovery services.')
 
 @section('content')
 <main>
@@ -65,7 +65,7 @@
     <section class="public-section">
         <div class="public-container">
             <div class="grid overflow-hidden rounded-[2.5rem] border border-rose-400/20 bg-rose-400/[.07] lg:grid-cols-[1.1fr_.9fr]">
-                <div class="p-8 sm:p-12"><p class="section-kicker text-rose-300">Yoga therapy</p><h2 class="mt-4 text-4xl font-black">Looking for a more restorative path?</h2><p class="mt-5 max-w-2xl leading-7 text-stone-400">Browse therapy categories or submit a non-emergency consultation request without creating an account.</p><a href="{{ route('yoga-therapy.index') }}" class="mt-8 inline-flex rounded-full bg-rose-400 px-6 py-3.5 font-black text-black">Explore yoga therapy</a></div>
+                <div class="p-8 sm:p-12"><p class="section-kicker text-rose-300">Therapy services</p><h2 class="mt-4 text-4xl font-black">Looking for a more restorative path?</h2><p class="mt-5 max-w-2xl leading-7 text-stone-400">Browse the services provided by W.H.K.T Nimesh or submit a non-emergency consultation request without creating an account.</p><a href="{{ route('yoga-therapy.index') }}" class="mt-8 inline-flex rounded-full bg-rose-400 px-6 py-3.5 font-black text-black">Explore therapy services</a></div>
                 <div class="min-h-64 bg-[radial-gradient(circle_at_center,rgba(251,113,133,.32),transparent_55%),linear-gradient(135deg,#251214,#0b0d0c)]"></div>
             </div>
         </div>

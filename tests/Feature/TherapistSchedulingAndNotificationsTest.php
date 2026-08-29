@@ -66,7 +66,7 @@ class TherapistSchedulingAndNotificationsTest extends TestCase
         $this->assertSame($therapist->id, $appointment->scheduled_by);
         Notification::assertSentTo($member, SessionScheduleNotification::class, fn ($notification) => $notification->event === 'confirmation');
 
-        [$otherTherapist, $otherSpecialist] = $this->therapist(TherapySpecialist::whereKeyNot($specialist->id)->firstOrFail());
+        [$otherTherapist, $otherSpecialist] = $this->therapist($this->additionalSpecialist());
         $otherAppointment = $this->appointment($otherSpecialist, $member);
 
         $this->actingAs($therapist)
@@ -203,6 +203,23 @@ class TherapistSchedulingAndNotificationsTest extends TestCase
         $specialist->update(['user_id' => $therapist->id]);
 
         return [$therapist, $specialist->fresh()];
+    }
+
+    private function additionalSpecialist(): TherapySpecialist
+    {
+        $specialist = TherapySpecialist::create([
+            'name' => 'Authorization Test Therapist',
+            'slug' => 'authorization-test-therapist',
+            'specialization' => 'Testing only',
+            'bio' => 'A test-only provider used to verify appointment ownership rules.',
+            'experience_years' => 0,
+            'is_active' => true,
+        ]);
+        $specialist->treatments()->attach(
+            TherapySpecialist::where('slug', 'whkt-nimesh')->firstOrFail()->treatments()->firstOrFail()->id,
+        );
+
+        return $specialist;
     }
 
     private function member(string $name = 'Therapy Client'): User

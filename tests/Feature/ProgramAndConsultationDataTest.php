@@ -6,6 +6,7 @@ use App\Models\ContactEnquiry;
 use App\Models\GroupProgram;
 use App\Models\GroupProgramRegistration;
 use App\Models\TherapyAppointment;
+use App\Models\TherapyCategory;
 use App\Models\TherapyCondition;
 use App\Models\TherapySpecialist;
 use App\Models\Treatment;
@@ -46,7 +47,26 @@ class ProgramAndConsultationDataTest extends TestCase
         $this->assertGreaterThanOrEqual(2, $recommended->count());
         $this->assertSame(1, $recommended->first()->pivot->priority);
         $this->assertTrue($recommended->contains(fn (Treatment $treatment) => $treatment->specialists->isNotEmpty()));
-        $this->assertDatabaseHas('therapy_specialists', ['slug' => 'harsha-wijeratne', 'is_active' => true]);
+        $this->assertDatabaseHas('therapy_specialists', ['name' => 'W.H.K.T Nimesh', 'slug' => 'whkt-nimesh', 'is_active' => true]);
+        $this->assertSame(6, TherapySpecialist::where('slug', 'whkt-nimesh')->firstOrFail()->treatments()->count());
+    }
+
+    public function test_real_therapy_catalogue_replaces_placeholder_services(): void
+    {
+        $expectedServices = [
+            'Cupping Therapy',
+            'Deep Tissue Massage',
+            'Foot Massage',
+            'Full Body Relaxation',
+            'Relaxa for Neck, Back, Shoulder & Muscle Pain',
+            'Trigger Point Release',
+        ];
+
+        $this->assertSame($expectedServices, Treatment::where('is_active', true)->orderBy('name')->pluck('name')->all());
+        $this->assertSame($expectedServices, TherapyCategory::where('is_active', true)->orderBy('name')->pluck('name')->all());
+
+        $nimesh = TherapySpecialist::where('slug', 'whkt-nimesh')->where('is_active', true)->firstOrFail();
+        $this->assertSame($expectedServices, $nimesh->treatments()->where('is_active', true)->orderBy('name')->pluck('name')->all());
     }
 
     public function test_group_program_can_store_a_member_or_guest_registration(): void
@@ -101,6 +121,6 @@ class ProgramAndConsultationDataTest extends TestCase
 
         $this->assertNull($guestEnquiry->user);
         $this->assertDatabaseHas('contact_enquiries', ['email' => 'guest@example.test', 'status' => 'new']);
-        $this->assertGreaterThanOrEqual(3, TherapySpecialist::count());
+        $this->assertSame(1, TherapySpecialist::where('is_active', true)->count());
     }
 }

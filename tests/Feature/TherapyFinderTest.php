@@ -33,22 +33,24 @@ class TherapyFinderTest extends TestCase
     {
         $this->get(route('therapy-finder.index', ['condition' => 'stress-tension']))
             ->assertOk()
-            ->assertSee('Stress Relief Yoga Therapy')
-            ->assertSee('Meditation Yoga Consultation')
-            ->assertDontSee('Back &amp; Spine Mobility Therapy', false);
+            ->assertSee('Full Body Relaxation')
+            ->assertSee('Foot Massage')
+            ->assertViewHas('treatments', fn ($treatments) => ! $treatments->contains('slug', 'deep-tissue-massage'));
     }
 
     public function test_unrelated_treatment_or_specialist_cannot_be_selected_through_the_url(): void
     {
         $this->get(route('therapy-finder.index', [
             'condition' => 'stress-tension',
-            'treatment' => 'back-spine-mobility-therapy',
+            'treatment' => 'deep-tissue-massage',
         ]))->assertNotFound();
+
+        $unrelatedSpecialist = $this->unrelatedSpecialist();
 
         $this->get(route('therapy-finder.index', [
             'condition' => 'back-stiffness',
-            'treatment' => 'back-spine-mobility-therapy',
-            'specialist' => 'amaya-senanayake',
+            'treatment' => 'relaxa-neck-back-shoulder-muscle-pain',
+            'specialist' => $unrelatedSpecialist->slug,
         ]))->assertNotFound();
     }
 
@@ -101,7 +103,7 @@ class TherapyFinderTest extends TestCase
     public function test_server_rejects_a_specialist_who_does_not_offer_the_treatment(): void
     {
         [$condition, $treatment] = $this->validPathway();
-        $unrelatedSpecialist = TherapySpecialist::where('slug', 'amaya-senanayake')->firstOrFail();
+        $unrelatedSpecialist = $this->unrelatedSpecialist();
 
         $this->from(route('therapy-finder.index', ['condition' => $condition->slug]))
             ->post(route('therapy-finder.store'), [
@@ -156,9 +158,21 @@ class TherapyFinderTest extends TestCase
     private function validPathway(): array
     {
         $condition = TherapyCondition::where('slug', 'back-stiffness')->firstOrFail();
-        $treatment = Treatment::where('slug', 'back-spine-mobility-therapy')->firstOrFail();
-        $specialist = $treatment->specialists()->where('slug', 'harsha-wijeratne')->firstOrFail();
+        $treatment = Treatment::where('slug', 'relaxa-neck-back-shoulder-muscle-pain')->firstOrFail();
+        $specialist = $treatment->specialists()->where('slug', 'whkt-nimesh')->firstOrFail();
 
         return [$condition, $treatment, $specialist];
+    }
+
+    private function unrelatedSpecialist(): TherapySpecialist
+    {
+        return TherapySpecialist::create([
+            'name' => 'Unrelated Test Specialist',
+            'slug' => 'unrelated-test-specialist',
+            'specialization' => 'Testing only',
+            'bio' => 'A test-only record with no assigned services.',
+            'experience_years' => 0,
+            'is_active' => true,
+        ]);
     }
 }

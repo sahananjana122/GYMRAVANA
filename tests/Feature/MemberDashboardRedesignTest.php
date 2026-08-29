@@ -53,8 +53,8 @@ class MemberDashboardRedesignTest extends TestCase
 
         $specialist = TherapySpecialist::firstOrFail();
         $this->therapySession($member, $specialist, $start->copy()->addHours(3));
-        $otherSpecialist = TherapySpecialist::whereKeyNot($specialist->id)->firstOrFail();
-        $this->therapySession($otherMember, $otherSpecialist, $start->copy()->addDays(2));
+        $otherTherapyStart = $start->copy()->addDays(2);
+        $this->therapySession($otherMember, $specialist, $otherTherapyStart);
 
         $workoutPlan = $this->plan($member, $trainer, MemberPlan::TYPE_WORKOUT, 'My Strength Foundation');
         $workoutPlan->items()->create([
@@ -76,7 +76,7 @@ class MemberDashboardRedesignTest extends TestCase
             ->assertSee('Visible trainer update')
             ->assertDontSee('Private trainer update')
             ->assertSee($specialist->name)
-            ->assertDontSee($otherSpecialist->name);
+            ->assertDontSee($otherTherapyStart->format('d M Y, H:i'));
 
         $this->get(route('member.workouts.index'))
             ->assertOk()

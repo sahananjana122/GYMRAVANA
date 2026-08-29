@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Contact GymRAVANA')
-@section('meta_description', 'Contact GymRAVANA about memberships, fitness programs, group classes or yoga therapy support.')
+@section('meta_description', 'Contact GymRAVANA about memberships, fitness programs, group classes or therapy services.')
 
 @section('content')
 <main>

@@ -76,15 +76,20 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach ([
-            ['name' => 'Stress Relief', 'slug' => 'stress-relief', 'description' => 'A gentle consultation request focused on relaxation and recovery routines.'],
-            ['name' => 'Head Therapy', 'slug' => 'head-therapy', 'description' => 'A request for non-emergency yoga and relaxation guidance related to head and neck tension.'],
-            ['name' => 'Belly Fat', 'slug' => 'belly-fat', 'description' => 'A lifestyle-focused request combining movement, consistency and general wellness education.'],
-            ['name' => 'Full Body Therapy', 'slug' => 'full-body-therapy', 'description' => 'A whole-body mobility and restorative yoga consultation request.'],
-            ['name' => 'Meditation Yoga Therapy', 'slug' => 'meditation-yoga-therapy', 'description' => 'Guided breathing and meditation practices supporting calm, focus and emotional balance.'],
-            ['name' => 'Back & Spine Therapy', 'slug' => 'back-spine-therapy', 'description' => 'Gentle mobility consultation for non-emergency back stiffness and movement confidence.'],
+            ['name' => 'Cupping Therapy', 'slug' => 'cupping-therapy', 'description' => 'A therapist-led cupping service focused on relaxation and post-training recovery.'],
+            ['name' => 'Full Body Relaxation', 'slug' => 'full-body-relaxation', 'description' => 'A gentle full-body relaxation session designed to ease everyday tension and support recovery.'],
+            ['name' => 'Deep Tissue Massage', 'slug' => 'deep-tissue-massage', 'description' => 'A focused massage service using firmer pressure for areas of persistent muscular tension.'],
+            ['name' => 'Trigger Point Release', 'slug' => 'trigger-point-release', 'description' => 'Targeted therapist-led work for localized areas of muscular tightness.'],
+            ['name' => 'Relaxa for Neck, Back, Shoulder & Muscle Pain', 'slug' => 'relaxa-neck-back-shoulder-muscle-pain', 'description' => 'A focused relaxation service for everyday neck, back, shoulder and muscle discomfort.'],
+            ['name' => 'Foot Massage', 'slug' => 'foot-massage', 'description' => 'A focused foot massage service for relaxation after daily activity or training.'],
         ] as $category) {
             TherapyCategory::updateOrCreate(['slug' => $category['slug']], $category + ['is_active' => true]);
         }
+
+        TherapyCategory::whereIn('slug', [
+            'stress-relief', 'head-therapy', 'belly-fat', 'full-body-therapy',
+            'meditation-yoga-therapy', 'back-spine-therapy',
+        ])->update(['is_active' => false]);
 
         $productCategories = collect([
             ['name' => 'Clothing', 'slug' => 'clothing'],
@@ -146,11 +151,12 @@ class DatabaseSeeder extends Seeder
 
         $categories = TherapyCategory::all()->keyBy('slug');
         $treatments = collect([
-            ['name' => 'Traditional Nadi Consultation', 'slug' => 'traditional-nadi-consultation', 'treatment_type' => 'nadi', 'category' => null, 'description' => 'A traditional pulse-based wellness consultation used to guide an appropriate non-emergency care pathway.'],
-            ['name' => 'Restorative Full Body Yoga', 'slug' => 'restorative-full-body-yoga', 'treatment_type' => 'yoga_therapy', 'category' => 'full-body-therapy', 'description' => 'A gentle whole-body mobility and relaxation programme tailored after consultation.'],
-            ['name' => 'Back & Spine Mobility Therapy', 'slug' => 'back-spine-mobility-therapy', 'treatment_type' => 'yoga_therapy', 'category' => 'back-spine-therapy', 'description' => 'Controlled mobility and posture-focused yoga guidance for non-emergency discomfort.'],
-            ['name' => 'Stress Relief Yoga Therapy', 'slug' => 'stress-relief-yoga-therapy', 'treatment_type' => 'yoga_therapy', 'category' => 'stress-relief', 'description' => 'Breathing, restorative movement and relaxation guidance for everyday stress.'],
-            ['name' => 'Meditation Yoga Consultation', 'slug' => 'meditation-yoga-consultation', 'treatment_type' => 'yoga_therapy', 'category' => 'meditation-yoga-therapy', 'description' => 'A guided meditation and breathing pathway based on the client consultation.'],
+            ['name' => 'Cupping Therapy', 'slug' => 'cupping-therapy', 'treatment_type' => 'other', 'category' => 'cupping-therapy', 'description' => 'A therapist-led cupping service focused on relaxation and post-training recovery.'],
+            ['name' => 'Full Body Relaxation', 'slug' => 'full-body-relaxation', 'treatment_type' => 'other', 'category' => 'full-body-relaxation', 'description' => 'A gentle full-body relaxation session designed to ease everyday tension and support recovery.'],
+            ['name' => 'Deep Tissue Massage', 'slug' => 'deep-tissue-massage', 'treatment_type' => 'other', 'category' => 'deep-tissue-massage', 'description' => 'A focused massage service using firmer pressure for areas of persistent muscular tension.'],
+            ['name' => 'Trigger Point Release', 'slug' => 'trigger-point-release', 'treatment_type' => 'other', 'category' => 'trigger-point-release', 'description' => 'Targeted therapist-led work for localized areas of muscular tightness.'],
+            ['name' => 'Relaxa for Neck, Back, Shoulder & Muscle Pain', 'slug' => 'relaxa-neck-back-shoulder-muscle-pain', 'treatment_type' => 'other', 'category' => 'relaxa-neck-back-shoulder-muscle-pain', 'description' => 'A focused relaxation service for everyday neck, back, shoulder and muscle discomfort.'],
+            ['name' => 'Foot Massage', 'slug' => 'foot-massage', 'treatment_type' => 'other', 'category' => 'foot-massage', 'description' => 'A focused foot massage service for relaxation after daily activity or training.'],
         ])->mapWithKeys(function (array $data) use ($categories) {
             $categorySlug = $data['category'];
             $treatment = Treatment::updateOrCreate(
@@ -164,14 +170,20 @@ class DatabaseSeeder extends Seeder
             return [$treatment->slug => $treatment];
         });
 
+        Treatment::whereIn('slug', [
+            'traditional-nadi-consultation', 'restorative-full-body-yoga',
+            'back-spine-mobility-therapy', 'stress-relief-yoga-therapy',
+            'meditation-yoga-consultation',
+        ])->update(['is_active' => false]);
+
         foreach ([
-            ['name' => 'Body Pain', 'slug' => 'body-pain', 'description' => 'General non-emergency aches or stiffness.', 'treatments' => ['traditional-nadi-consultation', 'restorative-full-body-yoga']],
-            ['name' => 'Muscle Spasm or Strain', 'slug' => 'muscle-spasm-strain', 'description' => 'Non-acute muscular tightness or strain requiring professional screening.', 'treatments' => ['traditional-nadi-consultation', 'restorative-full-body-yoga']],
-            ['name' => 'Joint Pain', 'slug' => 'joint-pain', 'description' => 'Non-emergency joint discomfort or reduced movement confidence.', 'treatments' => ['traditional-nadi-consultation', 'back-spine-mobility-therapy']],
-            ['name' => 'Bone-Related Concern', 'slug' => 'bone-related-concern', 'description' => 'A concern that should be assessed before any exercise recommendation.', 'treatments' => ['traditional-nadi-consultation']],
-            ['name' => 'General Fatigue', 'slug' => 'general-fatigue', 'description' => 'Persistent non-emergency tiredness affecting daily routines.', 'treatments' => ['traditional-nadi-consultation', 'restorative-full-body-yoga']],
-            ['name' => 'Stress or Tension', 'slug' => 'stress-tension', 'description' => 'Everyday stress, tension or difficulty settling.', 'treatments' => ['stress-relief-yoga-therapy', 'meditation-yoga-consultation']],
-            ['name' => 'Back Stiffness', 'slug' => 'back-stiffness', 'description' => 'Non-emergency back stiffness requiring careful movement selection.', 'treatments' => ['back-spine-mobility-therapy', 'traditional-nadi-consultation']],
+            ['name' => 'Body Pain', 'slug' => 'body-pain', 'description' => 'General non-emergency aches or stiffness.', 'treatments' => ['deep-tissue-massage', 'full-body-relaxation', 'cupping-therapy']],
+            ['name' => 'Muscle Spasm or Strain', 'slug' => 'muscle-spasm-strain', 'description' => 'Non-acute muscular tightness or strain requiring professional screening.', 'treatments' => ['trigger-point-release', 'deep-tissue-massage']],
+            ['name' => 'Joint Pain', 'slug' => 'joint-pain', 'description' => 'Non-emergency joint discomfort or reduced movement confidence.', 'treatments' => ['cupping-therapy', 'full-body-relaxation']],
+            ['name' => 'General Fatigue', 'slug' => 'general-fatigue', 'description' => 'Persistent non-emergency tiredness affecting daily routines.', 'treatments' => ['full-body-relaxation', 'foot-massage']],
+            ['name' => 'Stress or Tension', 'slug' => 'stress-tension', 'description' => 'Everyday stress, tension or difficulty settling.', 'treatments' => ['full-body-relaxation', 'foot-massage']],
+            ['name' => 'Back Stiffness', 'slug' => 'back-stiffness', 'description' => 'Non-emergency back stiffness requiring careful service selection.', 'treatments' => ['relaxa-neck-back-shoulder-muscle-pain', 'trigger-point-release', 'deep-tissue-massage']],
+            ['name' => 'Foot Tension or Fatigue', 'slug' => 'foot-tension-fatigue', 'description' => 'Everyday foot tension or tiredness after activity.', 'treatments' => ['foot-massage', 'full-body-relaxation']],
         ] as $data) {
             $condition = TherapyCondition::updateOrCreate(
                 ['slug' => $data['slug']],
@@ -187,10 +199,19 @@ class DatabaseSeeder extends Seeder
             $condition->treatments()->sync($recommendations);
         }
 
+        TherapyCondition::where('slug', 'bone-related-concern')->update(['is_active' => false]);
+
         foreach ([
-            ['name' => 'Dr. Nirmala Jayasinghe', 'slug' => 'nirmala-jayasinghe', 'gender' => 'female', 'specialization' => 'Traditional Nadi wellness consultation', 'bio' => 'Provides traditional pulse-based wellness consultations and appropriate referral guidance.', 'qualifications' => 'Traditional wellness practitioner; Yoga therapy foundations', 'experience_years' => 12, 'treatments' => ['traditional-nadi-consultation']],
-            ['name' => 'Dr. Harsha Wijeratne', 'slug' => 'harsha-wijeratne', 'gender' => 'male', 'specialization' => 'Mobility and restorative yoga therapy', 'bio' => 'Supports carefully structured mobility and restorative programmes after an initial consultation.', 'qualifications' => 'Certified yoga therapist; Movement assessment training', 'experience_years' => 10, 'treatments' => ['restorative-full-body-yoga', 'back-spine-mobility-therapy']],
-            ['name' => 'Ms. Amaya Senanayake', 'slug' => 'amaya-senanayake', 'gender' => 'female', 'specialization' => 'Meditation, breathwork and stress relief', 'bio' => 'Guides approachable breathing, meditation and restorative movement practices.', 'qualifications' => 'RYT 500; Meditation facilitator; Breathwork practitioner', 'experience_years' => 9, 'treatments' => ['stress-relief-yoga-therapy', 'meditation-yoga-consultation']],
+            [
+                'name' => 'W.H.K.T Nimesh',
+                'slug' => 'whkt-nimesh',
+                'gender' => null,
+                'specialization' => 'Trainer and therapist',
+                'bio' => 'Provides all GymRAVANA cupping, relaxation, massage and trigger point release services.',
+                'qualifications' => null,
+                'experience_years' => 0,
+                'treatments' => $treatments->keys()->all(),
+            ],
         ] as $data) {
             $specialist = TherapySpecialist::updateOrCreate(
                 ['slug' => $data['slug']],
@@ -200,6 +221,10 @@ class DatabaseSeeder extends Seeder
                 collect($data['treatments'])->map(fn (string $slug) => $treatments[$slug]->id),
             );
         }
+
+        TherapySpecialist::whereIn('slug', [
+            'nirmala-jayasinghe', 'harsha-wijeratne', 'amaya-senanayake',
+        ])->update(['is_active' => false]);
     }
 
     private function seedLegacyWellnessContent(): void

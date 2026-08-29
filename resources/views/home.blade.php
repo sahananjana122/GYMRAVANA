@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Premium Fitness, Coaching & Wellness')
-@section('meta_description', 'Train with purpose at GymRAVANA through strength, group fitness, personal coaching, yoga therapy and guided wellness support.')
+@section('meta_description', 'Train with purpose at GymRAVANA through strength, group fitness, personal coaching, therapy services and guided wellness support.')
 
 @section('content')
 <main class="landing-home bg-[#efefeb] text-[#10201a]">
@@ -169,7 +169,7 @@
 
     <section id="yoga-therapy" class="landing-section bg-white">
         <div class="landing-container">
-            <div class="grid gap-6 lg:grid-cols-[1fr_.65fr] lg:items-end"><div><p class="landing-eyebrow">Yoga therapy</p><h2 class="landing-display landing-heading">Space to move, breathe and restore.</h2></div><div><p class="leading-7 text-[#66716c]">Explore database-backed wellness categories, then request a non-emergency follow-up from the GymRAVANA team.</p><a href="{{ route('yoga-therapy.index') }}" class="landing-text-link mt-4">Explore yoga therapy →</a></div></div>
+            <div class="grid gap-6 lg:grid-cols-[1fr_.65fr] lg:items-end"><div><p class="landing-eyebrow">Therapy services</p><h2 class="landing-display landing-heading">Space to relax, recover and restore.</h2></div><div><p class="leading-7 text-[#66716c]">Explore the six services provided by GymRAVANA trainer and therapist W.H.K.T Nimesh, then request a non-emergency follow-up.</p><a href="{{ route('yoga-therapy.index') }}" class="landing-text-link mt-4">Explore therapy services →</a></div></div>
             <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($therapyCategories as $category)
                     <a href="{{ route('yoga-therapy.index') }}" class="group relative min-h-[360px] overflow-hidden rounded-[1.75rem] bg-[#dfe2dc]">
@@ -187,7 +187,7 @@
             <div>
                 <p class="landing-eyebrow text-lime-300">Guided therapy finder</p>
                 <h2 class="landing-display landing-heading">A clearer path to the right support.</h2>
-                <p class="mt-6 max-w-xl text-lg leading-8 text-white/65">Start with your main non-emergency concern. The finder uses the project’s curated database relationships to show suitable educational pathways, Nadi consultation options and available specialists.</p>
+                <p class="mt-6 max-w-xl text-lg leading-8 text-white/65">Start with your main non-emergency concern. The finder uses the project’s curated database relationships to show relevant GymRAVANA services provided by W.H.K.T Nimesh.</p>
                 <ol class="mt-10 grid gap-3 sm:grid-cols-2">
                     @foreach (['Choose a condition', 'Review recommended therapy', 'Select a specialist', 'Request an appointment'] as $step)
                         <li class="flex items-center gap-4 border-t border-white/20 py-4"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lime-300 text-sm font-black text-black">{{ $loop->iteration }}</span><span class="font-bold">{{ $step }}</span></li>
@@ -202,7 +202,7 @@
 
     <section id="specialists" class="landing-section">
         <div class="landing-container">
-            <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><div><p class="landing-eyebrow">Therapy specialists</p><h2 class="landing-display landing-heading">Experience for every next step.</h2></div><a href="{{ route('therapy-finder.index') }}" class="landing-text-link">View therapy pathways →</a></div>
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><div><p class="landing-eyebrow">Your therapist</p><h2 class="landing-display landing-heading">Meet the provider behind every service.</h2></div><a href="{{ route('therapy-finder.index') }}" class="landing-text-link">View therapy pathways →</a></div>
             <div class="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 @foreach ($specialists as $specialist)
                     <article class="group overflow-hidden rounded-[1.75rem] bg-white shadow-[0_18px_50px_rgba(16,32,26,.07)]">
@@ -213,7 +213,23 @@
                                 <x-landing-image :path="'images/landing/specialists/'.$specialist->slug.'.jpg'" :alt="$specialist->name.', GymRAVANA therapy specialist'" :label="$specialist->name.' portrait'" class="h-full w-full" image-class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                             @endif
                         </div>
-                        <div class="p-6"><p class="text-xs font-black uppercase tracking-wider text-lime-700">{{ $specialist->specialization }}</p><h3 class="mt-2 text-2xl font-black">{{ $specialist->name }}</h3><p class="mt-3 text-sm font-bold text-[#66716c]">{{ $specialist->experience_years }} years · {{ $specialist->qualifications }}</p><p class="mt-4 line-clamp-3 text-sm leading-6 text-[#66716c]">{{ $specialist->bio }}</p><div class="mt-6 flex gap-2"><a href="#therapy-pathway" class="flex-1 rounded-full border border-[#cfd5cf] px-4 py-3 text-center text-sm font-black">View pathway</a><a href="{{ route('therapy-finder.index') }}" class="flex-1 rounded-full bg-[#10201a] px-4 py-3 text-center text-sm font-black text-white">Book appointment</a></div></div>
+                        <div class="p-6">
+                            <p class="text-xs font-black uppercase tracking-wider text-lime-700">{{ $specialist->specialization }}</p>
+                            <h3 class="mt-2 text-2xl font-black">{{ $specialist->name }}</h3>
+                            @if ($specialist->experience_years || $specialist->qualifications)
+                                <p class="mt-3 text-sm font-bold text-[#66716c]">
+                                    @if ($specialist->experience_years)
+                                        {{ $specialist->experience_years }} years
+                                    @endif
+                                    @if ($specialist->experience_years && $specialist->qualifications)
+                                        ·
+                                    @endif
+                                    {{ $specialist->qualifications }}
+                                </p>
+                            @endif
+                            <p class="mt-4 line-clamp-3 text-sm leading-6 text-[#66716c]">{{ $specialist->bio }}</p>
+                            <div class="mt-6 flex gap-2"><a href="#therapy-pathway" class="flex-1 rounded-full border border-[#cfd5cf] px-4 py-3 text-center text-sm font-black">View pathway</a><a href="{{ route('therapy-finder.index') }}" class="flex-1 rounded-full bg-[#10201a] px-4 py-3 text-center text-sm font-black text-white">Book appointment</a></div>
+                        </div>
                     </article>
                 @endforeach
             </div>
