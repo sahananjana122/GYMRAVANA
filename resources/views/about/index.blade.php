@@ -11,7 +11,7 @@
             <div>
                 <p class="section-kicker">About GymRAVANA</p>
                 <h1 class="page-title">Movement with meaning. Wellness built for real life.</h1>
-                <p class="page-lead">[Your paragraph here — replace this with the studio's final “Who We Are” introduction.] GymRAVANA brings physical training, mindful recovery and supportive guidance together in one approachable community.</p>
+                <p class="page-lead">For 14 years, GymRAVANA has grown beyond a traditional gym into a complete health ecosystem where dynamic training, mindful movement, recovery and physiotherapy work together for lifelong wellbeing.</p>
                 <div class="mt-8 flex flex-wrap gap-3">
                     <a href="{{ route('programs.index') }}" class="rounded-full bg-lime-400 px-6 py-3.5 font-black text-black transition hover:bg-lime-300">Explore programs</a>
                     <a href="{{ route('contact.index') }}" class="rounded-full border border-white/20 px-6 py-3.5 font-bold transition hover:border-white/50">Talk to our team</a>
@@ -35,16 +35,17 @@
                 <article class="public-panel p-7 sm:p-10">
                     <span class="grid h-12 w-12 place-items-center rounded-2xl bg-lime-400 text-xl font-black text-black">V</span>
                     <p class="section-kicker mt-10">Our vision</p>
-                    <h2 class="mt-4 text-3xl font-black sm:text-4xl">A healthier community that moves with confidence.</h2>
-                    <p class="mt-5 leading-8 text-stone-400">[Replace with your final vision statement.] We envision an inclusive space where sustainable physical and mental wellbeing becomes part of everyday life.</p>
+                    <h2 class="mt-4 text-3xl font-black sm:text-4xl">Peak performance. Pain-free living. For life.</h2>
+                    <p class="mt-5 leading-8 text-stone-300">To create a healthier world by making comprehensive wellness accessible, ensuring that every member achieves peak physical performance and pain-free living for life.</p>
                 </article>
                 <article class="public-panel p-7 sm:p-10">
                     <span class="grid h-12 w-12 place-items-center rounded-2xl bg-rose-400 text-xl font-black text-black">M</span>
                     <p class="section-kicker mt-10 text-rose-300">Our mission</p>
-                    <h2 class="mt-4 text-3xl font-black sm:text-4xl">Make expert-supported wellness easier to begin.</h2>
-                    <p class="mt-5 leading-8 text-stone-400">[Replace with your final mission statement.] We provide clear programs, supportive coaching and mindful practices that help people build routines they can maintain.</p>
+                    <h2 class="mt-4 text-3xl font-black sm:text-4xl">A complete health ecosystem for every stage.</h2>
+                    <p class="mt-5 leading-8 text-stone-300">For 14 years, Gym Ravana has been more than a gym; we are a complete health ecosystem. Our mission is to guide our members through every stage of their fitness journey by integrating dynamic workouts, mindful movement, and clinical physiotherapy. We exist to help you perform better, recover faster, and enjoy a lifetime of movement.</p>
                 </article>
             </div>
+            <p class="mt-8 text-right text-xs font-black uppercase tracking-[.18em] text-stone-500">— GYMRAVANA Management</p>
         </div>
     </section>
 

@@ -6,6 +6,41 @@
         </div>
     </x-slot>
 
+    <section aria-labelledby="game-path-heading" class="mb-14">
+        <div class="grid gap-8 border-b border-white/10 pb-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[.18em] text-violet-300">Configured game path</p>
+                <h2 id="game-path-heading" class="mt-2 text-3xl font-black tracking-tight">
+                    @if ($gameProgression['current'])
+                        Level {{ $gameProgression['current']['level']->number }} · {{ $gameProgression['current']['percent'] }}%
+                    @else
+                        No active game level
+                    @endif
+                </h2>
+                <p class="mt-3 max-w-3xl text-sm leading-6 text-stone-400">These targets come directly from the administrator’s current level configuration. AI-marked goals still require trustworthy evidence and the stated review method.</p>
+            </div>
+            <div class="text-left lg:text-right"><p class="text-xs font-black uppercase tracking-wider text-stone-500">Master Gate path</p><p class="mt-2 text-lg font-black {{ $gameProgression['master_gate_unlocked'] ? 'text-lime-300' : 'text-amber-300' }}">{{ $gameProgression['master_gate_unlocked'] ? 'Unlocked for review' : 'Locked' }}</p></div>
+        </div>
+
+        <div class="mt-6 grid gap-px overflow-hidden rounded-2xl bg-white/10 md:grid-cols-2 xl:grid-cols-3">
+            @forelse ($gameProgression['levels'] as $configuredLevel)
+                <article class="bg-[#111513] p-5 {{ $configuredLevel['unlocked'] ? '' : 'opacity-55' }}">
+                    <div class="flex items-center justify-between gap-4"><p class="text-xs font-black uppercase tracking-[.16em] {{ $configuredLevel['completed'] ? 'text-lime-300' : ($configuredLevel['unlocked'] ? 'text-violet-300' : 'text-stone-600') }}">Level {{ $configuredLevel['level']->number }}</p><span class="text-xs font-bold text-stone-500">{{ $configuredLevel['completed'] ? 'Complete' : ($configuredLevel['unlocked'] ? $configuredLevel['percent'].'%' : 'Locked') }}</span></div>
+                    <h3 class="mt-2 text-xl font-black">{{ $configuredLevel['level']->name }}</h3>
+                    <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="h-full rounded-full {{ $configuredLevel['completed'] ? 'bg-lime-300' : 'bg-violet-300' }}" style="width: {{ $configuredLevel['percent'] }}%"></div></div>
+                    <ul class="mt-5 space-y-4">
+                        @foreach ($configuredLevel['goals'] as $configuredGoal)
+                            <li class="flex gap-3"><span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[10px] font-black {{ $configuredGoal['achieved'] ? 'border-lime-300 bg-lime-300 text-[#10201a]' : 'border-white/15 text-stone-600' }}">{{ $configuredGoal['achieved'] ? '✓' : '' }}</span><span><span class="block text-sm font-black">{{ $configuredGoal['goal']->exercise_name }}</span><span class="mt-1 block text-xs leading-5 text-stone-500">{{ $configuredGoal['required_label'] }}</span></span></li>
+                        @endforeach
+                    </ul>
+                    @if ($configuredLevel['level']->unlocks_master_gate)<p class="mt-5 border-t border-amber-300/20 pt-4 text-xs font-black uppercase tracking-wider text-amber-300">Master Gate unlock level</p>@endif
+                </article>
+            @empty
+                <div class="bg-[#111513] p-10 text-center text-stone-500 md:col-span-2 xl:col-span-3">The administrator has not published a game path yet.</div>
+            @endforelse
+        </div>
+    </section>
+
     <section aria-labelledby="progression-summary-heading">
         <div class="grid gap-8 border-b border-white/10 pb-9 xl:grid-cols-[minmax(0,1.25fr)_minmax(20rem,.75fr)] xl:items-end">
             <div>

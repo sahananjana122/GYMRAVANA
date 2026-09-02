@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Controller;
 use App\Services\GamificationProgressService;
 use App\Services\GamificationService;
+use App\Services\GameLevelProgressionService;
 use App\Services\MemberDashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,11 +17,13 @@ class PortalController extends Controller
         Request $request,
         GamificationService $gamification,
         GamificationProgressService $progress,
+        GameLevelProgressionService $gameLevels,
     ): View {
         $progress->syncFor($request->user());
 
         return view('member.progression.index', [
             'gamification' => $gamification->summaryFor($request->user()),
+            'gameProgression' => $gameLevels->summaryFor($request->user()),
         ]);
     }
 

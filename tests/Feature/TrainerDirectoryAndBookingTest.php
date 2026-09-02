@@ -18,17 +18,17 @@ class TrainerDirectoryAndBookingTest extends TestCase
         $this->seed();
     }
 
-    public function test_directory_can_search_by_name_and_filter_by_specialty_and_gender(): void
+    public function test_directory_can_search_by_name_and_filter_by_specialty(): void
     {
-        $this->get(route('trainers.index', ['search' => 'Dilan']))
+        $this->get(route('trainers.index', ['search' => 'Pathum']))
             ->assertOk()
-            ->assertSee('Dilan Fernando')
-            ->assertDontSee('Kavindi Perera');
+            ->assertSee('Pathum Weerakkodi')
+            ->assertDontSee('N.T.D. Mendis');
 
-        $this->get(route('trainers.index', ['specialty' => 'Yoga & breathwork', 'gender' => 'female']))
+        $this->get(route('trainers.index', ['specialty' => 'Strength, conditioning and yoga']))
             ->assertOk()
-            ->assertSee('Anjali Silva')
-            ->assertDontSee('Dilan Fernando');
+            ->assertSee('N.T.D. Mendis')
+            ->assertDontSee('Pathum Weerakkodi');
     }
 
     public function test_directory_rejects_an_unknown_gender_filter(): void
@@ -39,13 +39,23 @@ class TrainerDirectoryAndBookingTest extends TestCase
 
     public function test_trainer_detail_displays_experience_certifications_and_programs(): void
     {
-        $trainer = TrainerProfile::where('slug', 'anjali-silva')->firstOrFail();
+        $trainer = TrainerProfile::where('slug', 'ntd-mendis')->firstOrFail();
 
         $this->get(route('trainers.show', $trainer))
             ->assertOk()
-            ->assertSee('7 years')
-            ->assertSee('RYT 200 Yoga Teacher')
+            ->assertSee('12 years')
+            ->assertSee('National Diploma in Sports Strength and Conditioning')
             ->assertSee('Book personal training');
+    }
+
+    public function test_seeded_trainer_photo_is_visible_in_the_trainer_dashboard_identity(): void
+    {
+        $trainer = TrainerProfile::where('slug', 'ntd-mendis')->firstOrFail();
+
+        $this->actingAs($trainer->user)
+            ->get(route('trainer.dashboard'))
+            ->assertOk()
+            ->assertSee(asset($trainer->photo_path), false);
     }
 
     public function test_booking_requires_a_supported_program_type(): void

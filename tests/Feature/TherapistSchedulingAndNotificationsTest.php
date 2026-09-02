@@ -11,9 +11,11 @@ use App\Models\User;
 use App\Notifications\SessionScheduleNotification;
 use App\Services\SessionNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -47,6 +49,45 @@ class TherapistSchedulingAndNotificationsTest extends TestCase
         $this->assertTrue($therapist->hasRole('therapist'));
         $this->assertSame($therapist->id, $specialist->fresh()->user_id);
         $this->assertDatabaseHas('users', ['email' => 'therapist@example.test']);
+    }
+
+    public function test_creating_a_new_therapist_account_also_publishes_their_profile(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $photo = UploadedFile::fake()->createWithContent(
+            'public-therapist.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl2nXQAAAAASUVORK5CYII='),
+        );
+
+        $this->actingAs($admin)
+            ->post(route('admin.therapists.store'), [
+                'name' => 'Public Therapist',
+                'email' => 'public.therapist@example.test',
+                'specialization' => 'Sports recovery therapist',
+                'experience_years' => 9,
+                'qualifications' => "Sports Massage Certificate\nRecovery Coaching",
+                'bio' => 'Provides practical recovery support for active members.',
+                'photo' => $photo,
+                'password' => 'Temporary123!',
+                'password_confirmation' => 'Temporary123!',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $therapist = User::where('email', 'public.therapist@example.test')->firstOrFail();
+        $specialist = TherapySpecialist::where('user_id', $therapist->id)->firstOrFail();
+
+        $this->assertTrue($therapist->hasRole('therapist'));
+        $this->assertTrue($specialist->is_active);
+        $this->assertSame('Sports recovery therapist', $specialist->specialization);
+        Storage::disk('public')->assertExists($specialist->photo_path);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('Public Therapist')
+            ->assertSee('Sports recovery therapist')
+            ->assertSee(Storage::url($specialist->photo_path), false);
     }
 
     public function test_linked_therapist_can_confirm_only_their_own_appointment_and_member_is_notified(): void

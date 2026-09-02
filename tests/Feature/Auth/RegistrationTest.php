@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\MembershipTier;
+use App\Models\MembershipSubscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,7 +34,8 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $this->assertTrue(auth()->user()->hasRole('member'));
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $subscription = MembershipSubscription::where('user_id', auth()->id())->firstOrFail();
+        $response->assertRedirect(route('member.membership.checkout', $subscription, absolute: false));
     }
 
     public function test_public_registration_cannot_assign_a_privileged_role(): void

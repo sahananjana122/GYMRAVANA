@@ -4,7 +4,7 @@
     <div class="flex w-full flex-col">
         <a href="{{ route('trainers.show', $trainer) }}" class="relative grid aspect-[4/3] place-items-center overflow-hidden bg-gradient-to-br from-lime-300/35 via-emerald-900 to-black" tabindex="-1" aria-hidden="true">
             @if ($trainer->photo_path)
-                <img src="{{ str_starts_with($trainer->photo_path, 'http') ? $trainer->photo_path : Storage::url($trainer->photo_path) }}" alt="" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]">
+                <img src="{{ str_starts_with($trainer->photo_path, 'http') ? $trainer->photo_path : (str_starts_with($trainer->photo_path, 'images/') ? asset($trainer->photo_path) : Storage::url($trainer->photo_path)) }}" alt="" class="h-full w-full bg-[#080a09] object-contain transition duration-500 group-hover:scale-[1.02]">
             @else
                 <span class="text-6xl font-black text-white/25">{{ collect(explode(' ', $trainer->user->name))->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('') }}</span>
             @endif

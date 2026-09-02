@@ -48,7 +48,7 @@
 
             <div class="grid gap-5 sm:grid-cols-2"><div><x-input-label for="password" value="Password" /><x-text-input id="password" class="mt-1 block w-full" type="password" name="password" required autocomplete="new-password" /><x-input-error :messages="$errors->get('password')" class="mt-2" /></div><div><x-input-label for="password_confirmation" value="Confirm password" /><x-text-input id="password_confirmation" class="mt-1 block w-full" type="password" name="password_confirmation" required /></div></div>
 
-            <div class="flex flex-col-reverse items-center justify-between gap-4 sm:flex-row"><a class="text-sm text-stone-400 hover:text-lime-300" href="{{ route('login') }}">Already registered? Log in</a><button class="w-full rounded-full bg-lime-400 px-7 py-3.5 font-black text-black sm:w-auto">Submit application</button></div>
+            <div class="flex flex-col-reverse items-center justify-between gap-4 sm:flex-row"><a class="text-sm text-stone-400 hover:text-lime-300" href="{{ route('login') }}">Already registered? Log in</a><button class="w-full rounded-full bg-lime-400 px-7 py-3.5 font-black text-black sm:w-auto"><span x-text="type === 'member' ? 'Create account & continue to payment' : 'Submit trainer application'"></span></button></div>
         </form>
     </div>
 </x-guest-layout>

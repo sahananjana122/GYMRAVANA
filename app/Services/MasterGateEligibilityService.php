@@ -13,12 +13,14 @@ class MasterGateEligibilityService
     public function __construct(
         private GamificationProgressService $progress,
         private GamificationService $gamification,
+        private GameLevelProgressionService $gameLevels,
     ) {}
 
     public function summaryFor(User $member): array
     {
         $this->progress->syncFor($member);
         $gamification = $this->gamification->summaryFor($member);
+        $gameProgression = $this->gameLevels->summaryFor($member);
         $completedChallenges = $member->memberMissions()
             ->whereNotNull('completed_at')
             ->whereHas('mission', fn ($query) => $query->where('kind', GamificationMission::KIND_CHALLENGE))
@@ -42,12 +44,16 @@ class MasterGateEligibilityService
 
         $applicationCriteria = [
             $this->criterion(
-                'level',
-                'Automatic level',
-                $gamification['level'] >= (int) config('master_gate.minimum_level', 6),
-                'Level '.$gamification['level'],
-                'Level '.(int) config('master_gate.minimum_level', 6).' or higher',
-                'Level comes only from the published XP rules.',
+                'game_levels',
+                'Game level requirements',
+                $gameProgression['master_gate_unlocked'],
+                $gameProgression['master_gate_unlocked']
+                    ? 'Master Gate level complete'
+                    : 'Level '.$gameProgression['highest_completed_level'].' complete',
+                $gameProgression['master_level']
+                    ? 'Complete every active goal through Level '.$gameProgression['master_level']['level']->number
+                    : 'Administrator must configure a Master Gate level',
+                'Uses the administrator’s live game goals and stored member evidence; XP alone cannot satisfy this requirement.',
             ),
             $this->criterion(
                 'completed_challenges',
@@ -105,6 +111,7 @@ class MasterGateEligibilityService
 
         return [
             'gamification' => $gamification,
+            'game_progression' => $gameProgression,
             'criteria' => $criteria,
             'application_criteria' => $applicationCriteria,
             'ai_criterion' => $aiCriterion,
@@ -133,6 +140,8 @@ class MasterGateEligibilityService
             'total_xp' => $summary['gamification']['total_xp'],
             'level' => $summary['gamification']['level'],
             'rank' => $summary['gamification']['current_rank']['name'],
+            'highest_completed_game_level' => $summary['game_progression']['highest_completed_level'],
+            'game_master_gate_unlocked' => $summary['game_progression']['master_gate_unlocked'],
             'prediction_id' => $summary['latest_prediction']?->id,
             'prediction_model_version' => $summary['latest_prediction']?->model_version,
         ];

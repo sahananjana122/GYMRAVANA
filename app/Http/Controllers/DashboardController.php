@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MemberPlan;
+use App\Models\MembershipTier;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Service;
@@ -28,8 +29,16 @@ class DashboardController extends Controller
 
     public function member(Request $request): View
     {
+        $user = $request->user()->load([
+            'memberProfile.membershipTier',
+            'activeMembershipSubscription.tier',
+            'activeMembershipSubscription.payment',
+        ]);
+
         return view('dashboards.member', [
-            'user' => $request->user()->load('memberProfile'),
+            'user' => $user,
+            'currentSubscription' => $user->activeMembershipSubscription,
+            'tiers' => MembershipTier::query()->where('is_active', true)->orderBy('price')->get(),
         ]);
     }
 

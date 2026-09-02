@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('title', 'Group Fitness Programs')
-@section('meta_description', 'Join Yoga, Zumba, Meditation, Aerobics, HIIT and Pilates group programs at GymRAVANA.')
+@section('meta_description', 'Join Fat Burning Yoga, Zumba and the Saturday Special Yoga Meditation Class at GymRAVANA.')
 
 @section('content')
 <main x-data="{ activeProgram: @js(old('selected_program', request('program'))) }">
@@ -9,7 +9,8 @@
         <div class="public-container public-section">
             <p class="section-kicker">Group programs</p>
             <h1 class="page-title">Move together. Stay consistent together.</h1>
-            <p class="page-lead">Choose a class that matches your pace, review the weekly schedule and send a joining request. Guests and members are both welcome.</p>
+            <p class="page-lead">Choose one of our three weekly classes, review its schedule and send a joining request.</p>
+            <p class="mt-6 inline-flex rounded-full border border-lime-300/25 bg-lime-300/10 px-5 py-3 text-sm font-bold text-lime-200">Open to both men and women. All age groups are welcome.</p>
         </div>
     </section>
 
@@ -23,17 +24,18 @@
                 @forelse ($programs as $program)
                     @php($remaining = max(0, $program->capacity - $program->active_registrations_count))
                     <article id="{{ $program->slug }}" class="public-panel overflow-hidden">
-                        <div class="relative min-h-56 overflow-hidden bg-gradient-to-br {{ $loop->even ? 'from-rose-400/70 via-orange-300/30 to-[#111]' : 'from-lime-300/80 via-emerald-500/30 to-[#111]' }} p-7">
-                            <div class="absolute inset-0 bg-[linear-gradient(135deg,transparent,rgba(0,0,0,.55))]"></div>
-                            <div class="relative flex h-full flex-col justify-between">
-                                <div class="flex items-center justify-between"><span class="rounded-full bg-black/35 px-3 py-1 text-xs font-black uppercase tracking-wider">{{ $program->level }}</span><span class="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-black">{{ $program->duration_minutes }} min</span></div>
-                                <h2 class="mt-20 text-4xl font-black">{{ $program->name }}</h2>
+                        <div class="relative flex h-72 items-center justify-center overflow-hidden bg-[#080a09] p-2 sm:h-80">
+                            <x-group-program-image :program="$program" image-class="h-full w-full object-contain" />
+                            <div class="absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-4">
+                                <span class="rounded-full bg-black/75 px-3 py-1 text-xs font-black uppercase tracking-wider text-white backdrop-blur">{{ $program->level }}</span>
+                                <span class="rounded-full bg-white/95 px-3 py-1 text-xs font-black text-black">{{ $program->duration_minutes }} min</span>
                             </div>
                         </div>
                         <div class="p-7">
-                            <p class="leading-7 text-stone-400">{{ $program->description }}</p>
+                            <h2 class="text-4xl font-black">{{ $program->name }}</h2>
+                            <p class="mt-4 leading-7 text-stone-400">{{ $program->description }}</p>
                             <dl class="mt-7 grid gap-4 border-y border-white/10 py-5 text-sm sm:grid-cols-2">
-                                <div><dt class="text-stone-500">Schedule</dt><dd class="mt-1 font-bold">{{ $program->schedule_info }}</dd></div>
+                                <div><dt class="text-stone-500">Schedule</dt><dd class="mt-1 whitespace-pre-line font-bold">{{ $program->schedule_info }}</dd></div>
                                 <div><dt class="text-stone-500">Instructor</dt><dd class="mt-1 font-bold">{{ $program->trainerProfile?->user?->name ?? 'GymRAVANA team' }}</dd></div>
                                 <div><dt class="text-stone-500">Capacity</dt><dd class="mt-1 font-bold">{{ $program->capacity }} participants</dd></div>
                                 <div><dt class="text-stone-500">Availability</dt><dd class="mt-1 font-bold {{ $remaining > 0 ? 'text-lime-300' : 'text-rose-300' }}">{{ $remaining > 0 ? $remaining.' request spaces' : 'Currently full' }}</dd></div>

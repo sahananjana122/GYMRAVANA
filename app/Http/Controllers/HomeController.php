@@ -17,15 +17,14 @@ class HomeController extends Controller
         return view('home', [
             'featuredPrograms' => $this->featuredPrograms(),
             'groupPrograms' => GroupProgram::query()
-                ->where('is_active', true)
+                ->published()
                 ->with('trainerProfile.user')
-                ->orderBy('id')
-                ->limit(6)
+                ->inDisplayOrder()
                 ->get(),
             'trainers' => TrainerProfile::approved()
                 ->with(['user', 'services'])
                 ->orderByDesc('experience_years')
-                ->limit(4)
+                ->limit(8)
                 ->get(),
             'therapyCategories' => TherapyCategory::query()
                 ->where('is_active', true)
@@ -36,7 +35,6 @@ class HomeController extends Controller
                 ->where('is_active', true)
                 ->with('treatments')
                 ->orderByDesc('experience_years')
-                ->limit(3)
                 ->get(),
             'tiers' => MembershipTier::where('is_active', true)->orderBy('price')->get(),
         ]);
@@ -55,7 +53,7 @@ class HomeController extends Controller
             ],
             [
                 'name' => 'Mind',
-                'description' => 'Discover breathing, mindfulness, meditation and mindful movement practices for focus and recovery.',
+                'description' => 'Includes the Saturday Special Yoga Meditation Class from 6:30 PM to 8:00 PM, focused on balancing the Nadi System, stress relief, Anapanasati meditation and yoga exercises.',
                 'meta' => 'Mindful practice',
                 'image' => 'images/landing/program-mind.jpg',
                 'href' => route('services.category', 'mind'),

@@ -25,8 +25,9 @@
 
         <div class="border-y border-white/10 py-5">
             <p class="text-xs font-black uppercase tracking-wider text-stone-500">Current progression</p>
-            <p class="mt-2 text-3xl font-black">Level {{ $gamification['level'] }}</p>
-            <p class="mt-1 text-sm font-bold text-lime-300">{{ $gamification['current_rank']['name'] }} · {{ number_format($gamification['total_xp']) }} XP</p>
+            <p class="mt-2 text-3xl font-black">Game Level {{ $game_progression['current']['level']->number ?? '—' }}</p>
+            <p class="mt-1 text-sm font-bold {{ $game_progression['master_gate_unlocked'] ? 'text-lime-300' : 'text-violet-300' }}">Level {{ $game_progression['highest_completed_level'] }} completed · Master Gate {{ $game_progression['master_gate_unlocked'] ? 'unlocked' : 'locked' }}</p>
+            <p class="mt-2 text-xs font-bold text-stone-500">Activity XP: Level {{ $gamification['level'] }} · {{ number_format($gamification['total_xp']) }} XP</p>
             <div class="mt-4 flex gap-3 text-xs font-bold text-stone-500"><span>{{ $completed_challenge_count }} challenges</span><span>·</span><span>{{ $gamification['active_day_count'] }} active days</span></div>
         </div>
     </section>
@@ -48,7 +49,7 @@
         </div>
 
         <div class="mt-6 grid gap-4 text-sm leading-6 lg:grid-cols-2">
-            <p class="border-l-2 border-sky-300 pl-4 text-stone-400"><strong class="text-white">Application rule:</strong> you can request review once the first five non-AI requirements pass. The AI result may still be pending while the request waits for review.</p>
+            <p class="border-l-2 border-sky-300 pl-4 text-stone-400"><strong class="text-white">Application rule:</strong> you can request review once the first five application requirements pass. The AI result may still be pending while the request waits for review.</p>
             <p class="border-l-2 border-amber-300 pl-4 text-stone-400"><strong class="text-white">Human safeguard:</strong> approval is never automatic. Any human override must include a stored reason visible in the audit history.</p>
         </div>
     </section>

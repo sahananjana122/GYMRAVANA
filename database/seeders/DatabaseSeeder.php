@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\GroupProgram;
 use App\Models\MemberProfile;
 use App\Models\MembershipTier;
+use App\Services\MembershipNumberService;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Service;
@@ -19,7 +19,6 @@ use App\Models\WellnessActivity;
 use App\Models\WorkoutPlan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -30,30 +29,13 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
+        $this->call(InstructorSeeder::class);
+
         $tiers = collect([
-            ['name' => 'Foundation', 'slug' => 'foundation', 'price' => 4500, 'billing_period' => 'month', 'features' => ['Gym and mind service access', 'Progress tracking', 'Member community'], 'is_featured' => false],
-            ['name' => 'Momentum', 'slug' => 'momentum', 'price' => 7500, 'billing_period' => 'month', 'features' => ['Everything in Foundation', 'Meal-plan library', 'Trainer booking access', 'Priority therapy follow-up'], 'is_featured' => true],
-            ['name' => 'Transform', 'slug' => 'transform', 'price' => 12000, 'billing_period' => 'month', 'features' => ['Everything in Momentum', 'Monthly trainer consultation', 'Advanced programmes', 'Premium member support'], 'is_featured' => false],
+            ['name' => 'Foundation', 'slug' => 'foundation', 'price' => 4500, 'billing_period' => 'month', 'duration_months' => 1, 'features' => ['Gym and mind service access', 'Progress tracking', 'Member community'], 'is_featured' => false],
+            ['name' => 'Momentum', 'slug' => 'momentum', 'price' => 7500, 'billing_period' => 'month', 'duration_months' => 1, 'features' => ['Everything in Foundation', 'Meal-plan library', 'Trainer booking access', 'Priority therapy follow-up'], 'is_featured' => true],
+            ['name' => 'Transform', 'slug' => 'transform', 'price' => 12000, 'billing_period' => 'month', 'duration_months' => 1, 'features' => ['Everything in Momentum', 'Monthly trainer consultation', 'Advanced programmes', 'Premium member support'], 'is_featured' => false],
         ])->map(fn (array $tier) => MembershipTier::updateOrCreate(['slug' => $tier['slug']], $tier + ['is_active' => true]));
-
-        $demoTrainers = [
-            ['name' => 'Kavindi Perera', 'email' => 'kavindi.trainer@example.test', 'slug' => 'kavindi-perera', 'specialty' => 'Strength & mobility', 'gender' => 'female', 'bio' => 'Kavindi helps beginners build confident movement patterns through progressive strength and mobility sessions.', 'certifications' => 'Certified Personal Trainer; Functional Movement Fundamentals', 'experience_years' => 6, 'availability' => 'Weekdays 6:00-10:00 and 16:00-20:00'],
-            ['name' => 'Dilan Fernando', 'email' => 'dilan.trainer@example.test', 'slug' => 'dilan-fernando', 'specialty' => 'Conditioning & fat loss', 'gender' => 'male', 'bio' => 'Dilan combines accessible conditioning with sustainable habit coaching for members at every fitness level.', 'certifications' => 'Level 3 Fitness Instructor; Nutrition Coaching Fundamentals', 'experience_years' => 8, 'availability' => 'Monday, Wednesday, Friday and Saturday mornings'],
-            ['name' => 'Anjali Silva', 'email' => 'anjali.trainer@example.test', 'slug' => 'anjali-silva', 'specialty' => 'Yoga & breathwork', 'gender' => 'female', 'bio' => 'Anjali teaches calm, practical yoga and breathing sessions focused on mobility, recovery and everyday resilience.', 'certifications' => 'RYT 200 Yoga Teacher; Breathwork Facilitator', 'experience_years' => 7, 'availability' => 'Tuesday and Thursday evenings; Sunday mornings'],
-        ];
-
-        foreach ($demoTrainers as $trainerData) {
-            $trainer = User::firstOrCreate(
-                ['email' => $trainerData['email']],
-                ['name' => $trainerData['name'], 'password' => Hash::make(Str::random(48)), 'email_verified_at' => now()],
-            );
-            $trainer->update(['name' => $trainerData['name'], 'email_verified_at' => $trainer->email_verified_at ?? now()]);
-            $trainer->syncRoles(['trainer']);
-            TrainerProfile::updateOrCreate(
-                ['user_id' => $trainer->id],
-                collect($trainerData)->except(['name', 'email'])->all() + ['status' => 'approved'],
-            );
-        }
 
         $categories = [
             'body' => ServiceCategory::updateOrCreate(['slug' => 'body'], ['name' => 'Body', 'description' => 'Practical programmes for strength, nutrition and sustainable physical progress.', 'display_order' => 1]),
@@ -113,16 +95,20 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach (User::role('member')->get() as $member) {
-            MemberProfile::firstOrCreate(
+            $profile = MemberProfile::firstOrCreate(
                 ['user_id' => $member->id],
                 ['membership_tier_id' => $tiers->firstWhere('is_featured', true)?->id, 'joined_at' => today(), 'status' => 'active'],
             );
+            if ($profile->status === 'active' && blank($profile->membership_number)) {
+                app(MembershipNumberService::class)->assign($profile, $profile->joined_at ?? $member->created_at);
+            }
         }
 
         $this->call(EventSeeder::class);
         $this->call(NoticeSeeder::class);
         $this->call(FinanceSeeder::class);
         $this->call(GamificationSeeder::class);
+        $this->call(GameProgressionSeeder::class);
         $this->seedProgramAndConsultationContent();
         $this->seedLegacyWellnessContent();
         $this->seedOptionalAdmin();
@@ -130,24 +116,9 @@ class DatabaseSeeder extends Seeder
 
     private function seedProgramAndConsultationContent(): void
     {
-        $trainers = TrainerProfile::approved()->orderBy('id')->get();
+        $this->call(GroupProgramSeeder::class);
 
-        foreach ([
-            ['name' => 'Yoga Flow', 'slug' => 'yoga-flow', 'description' => 'A guided group flow combining mobility, balance and controlled breathing.', 'schedule_info' => 'Tuesday and Thursday at 18:00', 'level' => 'Beginner friendly', 'duration_minutes' => 60, 'capacity' => 18],
-            ['name' => 'Zumba Energy', 'slug' => 'zumba-energy', 'description' => 'An energetic dance-fitness class with simple, repeatable movement patterns.', 'schedule_info' => 'Monday and Wednesday at 18:30', 'level' => 'All levels', 'duration_minutes' => 50, 'capacity' => 24],
-            ['name' => 'Guided Meditation', 'slug' => 'guided-meditation', 'description' => 'A quiet guided class for attention, relaxation and a consistent mindfulness routine.', 'schedule_info' => 'Saturday at 08:00', 'level' => 'All levels', 'duration_minutes' => 30, 'capacity' => 20],
-            ['name' => 'Aerobics Basics', 'slug' => 'aerobics-basics', 'description' => 'Accessible rhythmic cardio designed to improve stamina and coordination.', 'schedule_info' => 'Tuesday and Friday at 17:30', 'level' => 'Beginner', 'duration_minutes' => 45, 'capacity' => 22],
-            ['name' => 'HIIT Circuit', 'slug' => 'hiit-circuit', 'description' => 'Short work intervals and structured recovery for experienced group participants.', 'schedule_info' => 'Monday and Friday at 19:00', 'level' => 'Intermediate', 'duration_minutes' => 40, 'capacity' => 16],
-            ['name' => 'Pilates Foundation', 'slug' => 'pilates-foundation', 'description' => 'Controlled mat exercises focused on posture, stability and movement quality.', 'schedule_info' => 'Wednesday and Sunday at 09:00', 'level' => 'Beginner friendly', 'duration_minutes' => 50, 'capacity' => 16],
-        ] as $index => $program) {
-            GroupProgram::updateOrCreate(
-                ['slug' => $program['slug']],
-                $program + [
-                    'trainer_profile_id' => $trainers->isNotEmpty() ? $trainers[$index % $trainers->count()]->id : null,
-                    'is_active' => true,
-                ],
-            );
-        }
+        $trainers = TrainerProfile::approved()->orderBy('id')->get();
 
         $categories = TherapyCategory::all()->keyBy('slug');
         $treatments = collect([

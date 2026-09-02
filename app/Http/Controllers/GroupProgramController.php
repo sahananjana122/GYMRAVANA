@@ -14,10 +14,10 @@ class GroupProgramController extends Controller
     {
         return view('group-programs.index', [
             'programs' => GroupProgram::query()
-                ->where('is_active', true)
+                ->published()
                 ->with('trainerProfile.user')
                 ->withCount(['registrations as active_registrations_count' => fn ($query) => $query->whereIn('status', ['pending', 'confirmed'])])
-                ->orderBy('name')
+                ->inDisplayOrder()
                 ->get(),
         ]);
     }

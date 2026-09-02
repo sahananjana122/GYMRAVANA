@@ -42,6 +42,7 @@
                         ['Notification activity', 'Inspect in-app delivery and read state.', route('admin.notifications.index')],
                     ],
                     'Progression' => [
+                        ['Game level builder', 'Configure levels, exercise targets and the Master Gate unlock.', route('admin.game-levels.index')],
                         ['Quests & achievements', 'Manage transparent goals and milestone definitions.', route('admin.gamification.index')],
                         ['Master Gate reviews', 'Review advanced-member applications and audit overrides.', route('admin.master-gate.index')],
                         ['AI data readiness', 'Track trainer-recorded label coverage before local model training.', route('admin.ai-readiness.index')],

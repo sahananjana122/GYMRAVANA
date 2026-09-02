@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\GamificationMission;
+use App\Models\GameGoal;
 use App\Models\MasterGateApplication;
 use App\Models\MemberMission;
 use App\Models\MonthlyProgressReview;
@@ -11,6 +12,7 @@ use App\Models\TrainerProfile;
 use App\Models\User;
 use App\Models\WorkoutCompletion;
 use App\Models\WorkoutPlan;
+use App\Services\GameLevelProgressionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -231,6 +233,21 @@ class MasterGateWorkflowTest extends TestCase
             'readiness_rationale' => 'Consistent completion and progression behavior observed by the trainer.',
             'readiness_assessed_at' => now(),
         ]);
+
+        $gameLevels = app(GameLevelProgressionService::class);
+        GameGoal::where('slug', 'level-6-running')->update([
+            'pace_target' => 8,
+            'pace_unit' => GameGoal::PACE_KMH,
+        ]);
+        foreach (GameGoal::active()->get() as $goal) {
+            $gameLevels->record(
+                $member,
+                $goal,
+                (float) $goal->target_value,
+                $goal->pace_target !== null ? (float) $goal->pace_target : null,
+                'trainer',
+            );
+        }
 
         return $member;
     }

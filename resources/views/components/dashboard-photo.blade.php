@@ -4,8 +4,16 @@
     $photoUrl = null;
 
     if (filled($path)) {
+        $normalizedPath = ltrim($path, '/');
+
         if (str_starts_with($path, 'https://') || str_starts_with($path, 'http://')) {
             $photoUrl = $path;
+        } elseif (
+            str_starts_with($normalizedPath, 'images/')
+            && ! str_contains($normalizedPath, '..')
+            && \Illuminate\Support\Facades\File::isFile(public_path($normalizedPath))
+        ) {
+            $photoUrl = asset($normalizedPath);
         } elseif (Storage::disk('public')->exists($path)) {
             $photoUrl = Storage::url($path);
         }

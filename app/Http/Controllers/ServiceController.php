@@ -13,9 +13,16 @@ class ServiceController extends Controller
 {
     public function index(): View
     {
+        $groupPrograms = GroupProgram::query()
+            ->published()
+            ->with('trainerProfile.user')
+            ->inDisplayOrder()
+            ->get();
+
         return view('programs.index', [
             'categories' => ServiceCategory::with(['services' => fn ($query) => $query->where('is_active', true)])->orderBy('display_order')->get(),
-            'groupPrograms' => GroupProgram::where('is_active', true)->with('trainerProfile.user')->orderBy('name')->limit(3)->get(),
+            'groupPrograms' => $groupPrograms,
+            'specialMeditationProgram' => $groupPrograms->firstWhere('slug', 'special-yoga-meditation-class'),
         ]);
     }
 
@@ -23,7 +30,12 @@ class ServiceController extends Controller
     {
         $serviceCategory->load(['services' => fn ($query) => $query->where('is_active', true)]);
 
-        return view('services.category', ['category' => $serviceCategory]);
+        return view('services.category', [
+            'category' => $serviceCategory,
+            'specialMeditationProgram' => $serviceCategory->slug === 'mind'
+                ? GroupProgram::query()->published()->where('slug', 'special-yoga-meditation-class')->first()
+                : null,
+        ]);
     }
 
     public function show(ServiceCategory $serviceCategory, Service $service): View

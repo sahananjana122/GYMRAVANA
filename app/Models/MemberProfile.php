@@ -9,6 +9,7 @@ class MemberProfile extends Model
 {
     protected $fillable = [
         'user_id',
+        'membership_number',
         'membership_tier_id',
         'joined_at',
         'before_photo_path',

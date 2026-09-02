@@ -12,6 +12,27 @@
             ->implode('');
     @endphp
 
+    <section aria-labelledby="membership-summary-heading" class="mx-auto mb-10 max-w-6xl rounded-3xl border border-white/10 bg-[#111411]/90 p-6 sm:p-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Membership</p>
+                <h2 id="membership-summary-heading" class="mt-2 text-2xl font-black">{{ $user->memberProfile?->membership_number ?: 'Payment pending' }}</h2>
+                <dl class="mt-5 grid gap-x-10 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                    <div><dt class="text-stone-500">Current plan</dt><dd class="mt-1 font-black">{{ $currentSubscription?->tier?->name ?? $user->memberProfile?->membershipTier?->name ?? 'Not active' }}</dd></div>
+                    <div><dt class="text-stone-500">Status</dt><dd class="mt-1 font-black capitalize">{{ $currentSubscription?->status ?? $user->memberProfile?->status ?? 'pending' }}</dd></div>
+                    <div><dt class="text-stone-500">Starts</dt><dd class="mt-1 font-black">{{ $currentSubscription?->starts_on?->format('d M Y') ?? '—' }}</dd></div>
+                    <div><dt class="text-stone-500">Expires</dt><dd class="mt-1 font-black">{{ $currentSubscription?->ends_on?->format('d M Y') ?? '—' }}</dd></div>
+                </dl>
+            </div>
+
+            <form method="POST" action="{{ route('member.membership.renew') }}" class="flex min-w-0 flex-col gap-3 sm:flex-row lg:w-[28rem]">
+                @csrf
+                <label class="min-w-0 flex-1"><span class="form-label">Renew or change plan</span><select name="membership_tier_id" class="form-input" required>@foreach ($tiers as $tier)<option value="{{ $tier->id }}" @selected($currentSubscription?->membership_tier_id === $tier->id)>{{ $tier->name }} · LKR {{ number_format((float) $tier->price, 2) }}</option>@endforeach</select></label>
+                <button class="min-h-11 self-end rounded-xl bg-lime-400 px-5 font-black text-black">Continue</button>
+            </form>
+        </div>
+    </section>
+
     <section id="progress-photos" aria-labelledby="progress-photos-heading" class="mx-auto max-w-6xl">
         <div class="text-center">
             <p class="text-xs font-black uppercase tracking-[0.2em] text-lime-300">Private progress gallery</p>

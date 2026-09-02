@@ -10,7 +10,7 @@
             <a href="{{ route('trainers.index') }}" class="text-sm font-bold text-lime-300">&larr; All trainers</a>
             <div class="mt-8 grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
                 <div class="grid aspect-[4/5] place-items-center overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-lime-300/35 via-emerald-900 to-black">
-                    @if ($trainer->photo_path)<img src="{{ str_starts_with($trainer->photo_path, 'http') ? $trainer->photo_path : Storage::url($trainer->photo_path) }}" alt="{{ $trainer->user->name }}" class="h-full w-full object-cover">@else<span class="text-8xl font-black text-white/20">{{ collect(explode(' ', $trainer->user->name))->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('') }}</span>@endif
+                    @if ($trainer->photo_path)<img src="{{ str_starts_with($trainer->photo_path, 'http') ? $trainer->photo_path : (str_starts_with($trainer->photo_path, 'images/') ? asset($trainer->photo_path) : Storage::url($trainer->photo_path)) }}" alt="{{ $trainer->user->name }}" class="h-full w-full object-contain">@else<span class="text-8xl font-black text-white/20">{{ collect(explode(' ', $trainer->user->name))->map(fn ($part) => mb_substr($part, 0, 1))->take(2)->implode('') }}</span>@endif
                 </div>
                 <div>
                     <div class="flex flex-wrap gap-2"><span class="tag text-lime-300">Approved trainer</span>@if ($trainer->gender)<span class="tag">{{ str($trainer->gender)->replace('_', ' ')->title() }}</span>@endif</div>

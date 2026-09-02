@@ -28,7 +28,7 @@
                     <article class="group overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_55px_rgba(16,32,26,.08)]">
                         <div class="relative aspect-[16/10] overflow-hidden bg-[#d9ddd7]">
                             @if ($event->image_path)
-                                <img src="{{ str_starts_with($event->image_path, 'http') ? $event->image_path : Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
+                                <img src="{{ str_starts_with($event->image_path, 'http') ? $event->image_path : (str_starts_with(ltrim($event->image_path, '/'), 'images/') ? asset(ltrim($event->image_path, '/')) : Storage::url($event->image_path)) }}" alt="{{ $event->title }}" class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
                             @else
                                 <x-landing-image :path="'images/landing/events/'.$event->slug.'.jpg'" :alt="$event->title.' event at GymRAVANA'" :label="$event->title.' photograph'" class="h-full w-full" image-class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                             @endif

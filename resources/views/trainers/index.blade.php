@@ -15,6 +15,8 @@
 
     <section class="public-section">
         <div class="public-container">
+            <x-master-gymravana-card class="mb-10" />
+
             <form method="GET" action="{{ route('trainers.index') }}" class="rounded-[2rem] bg-white p-4 text-[#10231d] shadow-[0_18px_55px_rgba(0,0,0,.2)] sm:p-5">
                 <div class="grid gap-3 lg:grid-cols-[1.2fr_1fr_.7fr_auto]">
                     <div>

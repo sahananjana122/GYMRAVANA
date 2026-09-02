@@ -10,15 +10,43 @@
     @endif
 
     <section class="rounded-3xl border border-lime-400/20 bg-lime-400/[.04] p-5 sm:p-7">
-        <h2 class="text-xl font-black">Create a new therapist login</h2>
-        <p class="mt-2 text-sm text-stone-400">Give the temporary password to the therapist privately. The password is stored as a secure hash, never as readable text.</p>
-        <form method="POST" action="{{ route('admin.therapists.store') }}" class="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div class="max-w-3xl">
+            <p class="text-xs font-black uppercase tracking-[0.18em] text-lime-300">Account + public profile</p>
+            <h2 class="mt-2 text-xl font-black">Create a therapist</h2>
+            <p class="mt-2 text-sm leading-6 text-stone-400">Creating a new therapist here also publishes their active profile in the landing-page therapist section. Their password remains securely hashed.</p>
+        </div>
+
+        <form method="POST" action="{{ route('admin.therapists.store') }}" enctype="multipart/form-data" class="mt-7 grid gap-5 md:grid-cols-2">
             @csrf
-            <label class="text-sm font-bold text-stone-300">Unlinked specialist<select name="therapy_specialist_id" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required><option value="">Choose specialist</option>@foreach ($specialists->whereNull('user_id') as $specialist)<option value="{{ $specialist->id }}" @selected(old('therapy_specialist_id') == $specialist->id)>{{ $specialist->name }}</option>@endforeach</select></label>
-            <label class="text-sm font-bold text-stone-300">Account name<input name="name" value="{{ old('name') }}" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label>
+
+            <label class="text-sm font-bold text-stone-300 md:col-span-2">
+                Link an existing specialist instead (optional)
+                <select name="therapy_specialist_id" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100">
+                    <option value="">Create a new public therapist profile</option>
+                    @foreach ($specialists->whereNull('user_id') as $specialist)
+                        <option value="{{ $specialist->id }}" @selected(old('therapy_specialist_id') == $specialist->id)>{{ $specialist->name }}</option>
+                    @endforeach
+                </select>
+                <span class="mt-2 block text-xs font-normal leading-5 text-stone-500">If you choose an existing profile, its saved public details and photograph are kept.</span>
+            </label>
+
+            <label class="text-sm font-bold text-stone-300">Full name<input name="name" value="{{ old('name') }}" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label>
             <label class="text-sm font-bold text-stone-300">Email<input type="email" name="email" value="{{ old('email') }}" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label>
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1"><label class="text-sm font-bold text-stone-300">Temporary password<input type="password" name="password" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label><label class="text-sm font-bold text-stone-300">Confirm password<input type="password" name="password_confirmation" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label></div>
-            <button class="rounded-xl bg-lime-400 px-5 py-3 text-sm font-black text-black md:col-span-2 lg:col-span-4 lg:justify-self-start">Create and link account</button>
+            <label class="text-sm font-bold text-stone-300">Temporary password<input type="password" name="password" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label>
+            <label class="text-sm font-bold text-stone-300">Confirm password<input type="password" name="password_confirmation" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100" required></label>
+
+            <div class="md:col-span-2 border-t border-white/10 pt-6">
+                <p class="text-xs font-black uppercase tracking-[0.18em] text-stone-500">New public profile details</p>
+                <p class="mt-2 text-xs leading-5 text-stone-500">Complete these fields when “Create a new public therapist profile” is selected above.</p>
+            </div>
+
+            <label class="text-sm font-bold text-stone-300">Specialization<input name="specialization" value="{{ old('specialization') }}" placeholder="Example: Sports massage therapist" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100"></label>
+            <label class="text-sm font-bold text-stone-300">Experience (years)<input type="number" name="experience_years" value="{{ old('experience_years', 0) }}" min="0" max="60" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100"></label>
+            <label class="text-sm font-bold text-stone-300 md:col-span-2">Qualifications<textarea name="qualifications" rows="3" placeholder="One qualification per line" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100">{{ old('qualifications') }}</textarea></label>
+            <label class="text-sm font-bold text-stone-300 md:col-span-2">Short public biography<textarea name="bio" rows="4" maxlength="3000" class="mt-2 w-full rounded-xl border-white/10 bg-black/30 text-stone-100">{{ old('bio') }}</textarea></label>
+            <label class="text-sm font-bold text-stone-300 md:col-span-2">Profile photograph<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-4 text-sm text-stone-300 file:mr-4 file:rounded-full file:border-0 file:bg-lime-400 file:px-4 file:py-2 file:font-black file:text-black"></label>
+
+            <button class="rounded-xl bg-lime-400 px-5 py-3 text-sm font-black text-black md:col-span-2 md:justify-self-start">Create therapist account and profile</button>
         </form>
     </section>
 

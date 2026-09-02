@@ -7,21 +7,9 @@
 
 @php
     $normalizedPath = ltrim($path, '/');
-    $availableImages = app()->bound('landing.image-paths')
-        ? app('landing.image-paths')
-        : (function (): array {
-        $directory = public_path('images/landing');
-
-        if (! \Illuminate\Support\Facades\File::isDirectory($directory)) {
-            return [];
-        }
-
-        return collect(\Illuminate\Support\Facades\File::allFiles($directory))
-            ->map(fn (\SplFileInfo $file) => 'images/landing/'.str_replace('\\', '/', $file->getRelativePathname()))
-            ->all();
-    })();
-    app()->instance('landing.image-paths', $availableImages);
-    $hasImage = in_array($normalizedPath, $availableImages, true);
+    $hasImage = str_starts_with($normalizedPath, 'images/landing/')
+        && ! str_contains($normalizedPath, '..')
+        && \Illuminate\Support\Facades\File::isFile(public_path($normalizedPath));
 @endphp
 
 @if ($hasImage)

@@ -71,14 +71,14 @@ class ProgramAndConsultationDataTest extends TestCase
 
     public function test_group_program_can_store_a_member_or_guest_registration(): void
     {
-        $program = GroupProgram::where('slug', 'yoga-flow')->firstOrFail();
+        $program = GroupProgram::where('slug', 'fat-burning-yoga-classes')->firstOrFail();
         $member = User::factory()->create();
 
         $registration = $program->registrations()->create([
             'user_id' => $member->id,
             'name' => $member->name,
             'email' => $member->email,
-            'preferred_session' => 'Tuesday at 18:00',
+            'preferred_session' => 'Monday morning at 8:00 AM',
             'status' => 'pending',
         ]);
 

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\MembershipTier;
+use App\Models\MembershipSubscription;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\TherapyCategory;
@@ -102,7 +103,7 @@ class PlatformFeaturesTest extends TestCase
             'certifications' => 'Level 3 Coach',
             'password' => 'password',
             'password_confirmation' => 'password',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('trainer.dashboard'));
 
         $user = User::where('email', 'pending@example.com')->firstOrFail();
         $this->assertTrue($user->hasRole('trainer'));
@@ -115,16 +116,18 @@ class PlatformFeaturesTest extends TestCase
         $tier = MembershipTier::firstOrFail();
         $service = Service::firstOrFail();
 
-        $this->post(route('register'), [
+        $response = $this->post(route('register'), [
             'name' => 'Tier Member',
             'email' => 'tier-member@example.com',
             'application_type' => 'member',
             'membership_tier_id' => $tier->id,
             'password' => 'password',
             'password_confirmation' => 'password',
-        ])->assertRedirect(route('dashboard'));
+        ]);
 
         $user = User::where('email', 'tier-member@example.com')->firstOrFail();
+        $subscription = MembershipSubscription::where('user_id', $user->id)->firstOrFail();
+        $response->assertRedirect(route('member.membership.checkout', $subscription));
         $this->assertSame($tier->id, $user->memberProfile->membership_tier_id);
         $this->post(route('member.services.enroll', $service))->assertSessionHasNoErrors();
         $this->assertDatabaseHas('member_service', ['user_id' => $user->id, 'service_id' => $service->id]);

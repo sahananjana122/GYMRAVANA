@@ -23,6 +23,7 @@ GymRAVANA is an undergraduate software engineering project built with Laravel, B
 - Trainer-recorded progression-readiness labels with a required evidence rationale, providing ground truth for the future local AI without making automated gate decisions
 - Transparent member XP, levels, automatic ranks and activity streaks derived from existing completion records without calling deterministic rules AI
 - Member-opted quests, time-limited challenges, permanent achievements, and one-time auditable mission XP rewards
+- Administrator-configurable game levels and exercise goals with live member requirements, sequential unlocking, and a configurable Master Gate milestone
 - Explainable Master Gate application requirements, immutable eligibility snapshots, administrator human review, mandatory override reasons, and revocable approval history
 - Shared privacy-safe readiness feature generation, a disabled-by-default loopback-only Laravel client, and an admin-controlled idempotent prediction workflow that stores nothing without a valid reviewed model response
 - Member-controlled permission for sharing monthly weight/waist trends with assigned trainers; raw measurement notes are never shown in the tracker

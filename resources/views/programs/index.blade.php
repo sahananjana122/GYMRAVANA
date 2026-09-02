@@ -38,6 +38,12 @@
                             </article>
                         @endforeach
                     </div>
+                    @if ($category->slug === 'mind' && $specialMeditationProgram)
+                        <article class="mt-6 grid overflow-hidden rounded-[2rem] border border-rose-300/25 bg-rose-300/[.08] md:grid-cols-[minmax(15rem,.7fr)_1fr]">
+                            <div class="flex min-h-72 items-center justify-center bg-[#080a09] p-2"><x-group-program-image :program="$specialMeditationProgram" image-class="h-full max-h-96 w-full object-contain" /></div>
+                            <div class="flex flex-col items-start justify-center p-7"><p class="section-kicker text-rose-300">Saturday group class</p><h3 class="mt-3 text-3xl font-black">{{ $specialMeditationProgram->name }}</h3><p class="mt-4 max-w-3xl leading-7 text-stone-300">{{ $specialMeditationProgram->description }}</p><p class="mt-4 whitespace-pre-line font-bold text-white">{{ $specialMeditationProgram->schedule_info }}</p><a href="{{ route('group-programs.index') }}#{{ $specialMeditationProgram->slug }}" class="mt-6 inline-flex rounded-full bg-rose-300 px-6 py-3 font-black text-black">View class</a></div>
+                        </article>
+                    @endif
                 </section>
             @endforeach
         </div>
@@ -46,16 +52,14 @@
     <section class="border-y border-white/10 bg-[#111411] public-section">
         <div class="public-container">
             <div class="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-                <div><p class="section-kicker">Train together</p><h2 class="section-title">Group energy. Clear weekly schedules.</h2></div>
+                <div><p class="section-kicker">Train together</p><h2 class="section-title">Group energy. Clear weekly schedules.</h2><p class="mt-3 font-bold text-stone-300">Open to both men and women. All age groups are welcome.</p></div>
                 <a href="{{ route('group-programs.index') }}" class="font-bold text-lime-300">See all group programs &rarr;</a>
             </div>
             <div class="mt-10 grid gap-5 lg:grid-cols-3">
                 @foreach ($groupPrograms as $program)
-                    <article class="rounded-[2rem] bg-white p-6 text-[#10231d]">
-                        <span class="text-xs font-black uppercase tracking-[.18em] text-[#668d23]">{{ $program->level }}</span>
-                        <h3 class="mt-5 text-2xl font-black">{{ $program->name }}</h3>
-                        <p class="mt-3 min-h-20 text-sm leading-6 text-[#68766f]">{{ $program->description }}</p>
-                        <div class="mt-6 border-t border-[#e2e6e0] pt-5 text-sm font-bold"><p>{{ $program->schedule_info }}</p><p class="mt-2 text-[#7b8882]">{{ $program->duration_minutes }} minutes</p></div>
+                    <article class="overflow-hidden rounded-[2rem] bg-white text-[#10231d]">
+                        <div class="flex aspect-[4/3] items-center justify-center bg-[#080a09] p-2"><x-group-program-image :program="$program" image-class="h-full w-full object-contain" /></div>
+                        <div class="p-6"><span class="text-xs font-black uppercase tracking-[.18em] text-[#668d23]">{{ $program->level }}</span><h3 class="mt-5 text-2xl font-black">{{ $program->name }}</h3><p class="mt-3 min-h-20 text-sm leading-6 text-[#68766f]">{{ $program->description }}</p><div class="mt-6 border-t border-[#e2e6e0] pt-5 text-sm font-bold"><p class="whitespace-pre-line">{{ $program->schedule_info }}</p><p class="mt-2 text-[#7b8882]">{{ $program->duration_minutes }} minutes</p></div></div>
                     </article>
                 @endforeach
             </div>

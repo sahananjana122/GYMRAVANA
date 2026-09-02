@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\MembershipRegistrationCompletedNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -59,6 +61,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(MemberProfile::class);
     }
 
+    public function membershipSubscriptions(): HasMany
+    {
+        return $this->hasMany(MembershipSubscription::class);
+    }
+
+    public function activeMembershipSubscription(): HasOne
+    {
+        return $this->hasOne(MembershipSubscription::class)
+            ->where('status', MembershipSubscription::STATUS_ACTIVE)
+            ->latestOfMany('activated_at');
+    }
+
+    public function membershipPayments(): HasMany
+    {
+        return $this->hasMany(MembershipPayment::class);
+    }
+
     public function trainerProfile(): HasOne
     {
         return $this->hasOne(TrainerProfile::class);
@@ -97,6 +116,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function memberAchievements(): HasMany
     {
         return $this->hasMany(MemberAchievement::class);
+    }
+
+    public function gameGoalProgress(): HasMany
+    {
+        return $this->hasMany(MemberGameGoalProgress::class);
+    }
+
+    public function recordedGameGoalProgress(): HasMany
+    {
+        return $this->hasMany(MemberGameGoalProgress::class, 'recorded_by');
     }
 
     public function progressionReadinessPredictions(): HasMany
@@ -168,6 +197,27 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->hasRole('member') => 'member.dashboard',
             default => 'dashboard',
         };
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        if ($this->hasRole('member')) {
+            $subscription = $this->membershipSubscriptions()
+                ->active()
+                ->with('tier')
+                ->latest('activated_at')
+                ->first();
+            $profile = $this->memberProfile()->first();
+
+            if ($subscription && filled($profile?->membership_number)) {
+                $this->setRelation('memberProfile', $profile);
+                $this->notify(new MembershipRegistrationCompletedNotification($subscription));
+            }
+
+            return;
+        }
+
+        $this->notify(new VerifyEmail);
     }
 
     public function totalPoints(): int

@@ -7,6 +7,7 @@ use App\Models\MemberProfile;
 use App\Models\MembershipTier;
 use App\Models\TrainerProfile;
 use App\Models\User;
+use App\Services\MembershipService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class RegisteredUserController extends Controller
         return view('auth.register', ['tiers' => MembershipTier::where('is_active', true)->orderBy('price')->get()]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, MembershipService $memberships): RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -44,8 +45,9 @@ class RegisteredUserController extends Controller
 
         $photoPath = $request->hasFile('photo') ? $request->file('photo')->store('trainers', 'public') : null;
 
-        $user = DB::transaction(function () use ($validated, $photoPath) {
+        [$user, $subscription] = DB::transaction(function () use ($validated, $photoPath, $memberships) {
             $user = User::create(['name' => $validated['name'], 'email' => $validated['email'], 'password' => Hash::make($validated['password'])]);
+            $subscription = null;
 
             if ($validated['application_type'] === 'trainer') {
                 $user->assignRole('trainer');
@@ -65,18 +67,29 @@ class RegisteredUserController extends Controller
                 MemberProfile::create([
                     'user_id' => $user->id,
                     'membership_tier_id' => $validated['membership_tier_id'],
-                    'joined_at' => today(),
+                    'joined_at' => null,
                     'phone' => $validated['phone'] ?? null,
-                    'status' => 'active',
+                    'status' => 'pending',
                 ]);
+                $subscription = $memberships->createPendingSubscription(
+                    $user,
+                    MembershipTier::findOrFail($validated['membership_tier_id']),
+                    true,
+                );
             }
 
-            return $user;
+            return [$user, $subscription];
         });
 
-        event(new Registered($user));
+        if ($user->hasRole('trainer')) {
+            event(new Registered($user));
+        }
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard'));
+        if ($subscription) {
+            return redirect()->route('member.membership.checkout', $subscription);
+        }
+
+        return redirect()->route($user->dashboardRouteName());
     }
 }

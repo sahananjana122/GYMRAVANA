@@ -6,8 +6,10 @@ use App\Http\Controllers\Admin\BookingManagementController;
 use App\Http\Controllers\Admin\EventManagementController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\GamificationController;
+use App\Http\Controllers\Admin\GameLevelController;
 use App\Http\Controllers\Admin\MasterGateController as AdminMasterGateController;
 use App\Http\Controllers\Admin\MembershipTierController as AdminMembershipTierController;
+use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\NoticeManagementController;
 use App\Http\Controllers\Admin\NotificationActivityController;
 use App\Http\Controllers\Admin\OrderManagementController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupProgramController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Member\MasterGateController as MemberMasterGateController;
+use App\Http\Controllers\Member\MembershipCheckoutController;
 use App\Http\Controllers\Member\MissionController as MemberMissionController;
 use App\Http\Controllers\Member\PortalController as MemberPortalController;
 use App\Http\Controllers\Member\ProgressPhotoController;
@@ -101,6 +104,9 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('member')->name('member.')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'member'])->name('dashboard');
+            Route::get('/membership/checkout/{membershipSubscription}', [MembershipCheckoutController::class, 'show'])->name('membership.checkout');
+            Route::post('/membership/checkout/{membershipSubscription}/complete', [MembershipCheckoutController::class, 'complete'])->middleware('throttle:5,1')->name('membership.checkout.complete');
+            Route::post('/membership/renew', [MembershipCheckoutController::class, 'renew'])->middleware('throttle:5,1')->name('membership.renew');
             Route::get('/level-and-xp', [MemberPortalController::class, 'progression'])->name('progression.index');
             Route::get('/quests', [MemberMissionController::class, 'index'])->name('missions.index');
             Route::post('/quests/{gamificationMission}/join', [MemberMissionController::class, 'join'])->name('missions.join');
@@ -164,6 +170,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/memberships', [AdminMembershipTierController::class, 'store'])->name('memberships.store');
         Route::patch('/memberships/{membershipTier}', [AdminMembershipTierController::class, 'update'])->name('memberships.update');
         Route::patch('/members/{user}/tier', [AdminMembershipTierController::class, 'assign'])->name('members.tier');
+        Route::get('/members', [AdminMemberController::class, 'index'])->name('members.index');
+        Route::get('/members/{user}', [AdminMemberController::class, 'show'])->name('members.show');
         Route::get('/services', [ServiceManagementController::class, 'index'])->name('services.index');
         Route::post('/services', [ServiceManagementController::class, 'store'])->name('services.store');
         Route::patch('/services/{service}', [ServiceManagementController::class, 'update'])->name('services.update');
@@ -178,6 +186,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/gamification/achievements', [GamificationController::class, 'storeAchievement'])->name('gamification.achievements.store');
         Route::patch('/gamification/achievements/{achievement}', [GamificationController::class, 'updateAchievement'])->name('gamification.achievements.update');
         Route::delete('/gamification/achievements/{achievement}', [GamificationController::class, 'destroyAchievement'])->name('gamification.achievements.destroy');
+        Route::get('/game-levels', [GameLevelController::class, 'index'])->name('game-levels.index');
+        Route::post('/game-levels', [GameLevelController::class, 'storeLevel'])->name('game-levels.store');
+        Route::patch('/game-levels/{gameLevel}', [GameLevelController::class, 'updateLevel'])->name('game-levels.update');
+        Route::delete('/game-levels/{gameLevel}', [GameLevelController::class, 'destroyLevel'])->name('game-levels.destroy');
+        Route::post('/game-levels/{gameLevel}/goals', [GameLevelController::class, 'storeGoal'])->name('game-levels.goals.store');
+        Route::patch('/game-goals/{gameGoal}', [GameLevelController::class, 'updateGoal'])->name('game-goals.update');
+        Route::delete('/game-goals/{gameGoal}', [GameLevelController::class, 'destroyGoal'])->name('game-goals.destroy');
         Route::get('/master-gate', [AdminMasterGateController::class, 'index'])->name('master-gate.index');
         Route::patch('/master-gate/applications/{masterGateApplication}', [AdminMasterGateController::class, 'decide'])->name('master-gate.applications.decide');
         Route::get('/ai-readiness', [AiReadinessController::class, 'index'])->name('ai-readiness.index');

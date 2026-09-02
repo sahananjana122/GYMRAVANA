@@ -46,7 +46,13 @@ class TrainerDirectoryController extends Controller
     {
         abort_unless($trainerProfile->status === 'approved', 404);
 
-        return view('trainers.show', ['trainer' => $trainerProfile->load(['user', 'services.category', 'groupPrograms'])]);
+        return view('trainers.show', [
+            'trainer' => $trainerProfile->load([
+                'user',
+                'services.category',
+                'groupPrograms' => fn ($query) => $query->published()->inDisplayOrder(),
+            ]),
+        ]);
     }
 
     public function bookingForm(TrainerProfile $trainerProfile): View
